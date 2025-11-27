@@ -1,6 +1,4 @@
 -- ENUM Definitions
-CREATE TYPE user_role AS ENUM ('donor', 'verifikator', 'admin', 'bidder');
-
 CREATE TYPE donation_status AS ENUM (
     'pending',
     'verified_for_auction',
@@ -21,6 +19,11 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role user_role NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
 );
 
 CREATE TABLE donations (
