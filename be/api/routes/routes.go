@@ -24,3 +24,8 @@ type EchoRouter struct {
 func NewRouter(e *echo.Echo) Router {
 	return &EchoRouter{echo: e}
 }
+
+// Example injection method in main:
+//  router := routes.NewRouter(e)
+//  router.RegisterArticleRoutes(articleCtrl)
+//  router.RegisterDonationRoutes(donationCtrl)
