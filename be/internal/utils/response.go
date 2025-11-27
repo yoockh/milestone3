@@ -1,128 +1,93 @@
 package utils
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
-// SuccessResponse sends a standard success response with status 200 OK
-// Examples of usage:
-// SuccessResponse(w, "Operation successful", data)
-func SuccessResponse(w http.ResponseWriter, message string, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // 200
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "success",
+// sendResponse is a helper function to send JSON responses
+// code   : HTTP status code (200, 400, 404, etc.)
+// status : "success" or "error"
+// message: message to send
+// data   : payload data, can be nil if not needed
+func sendResponse(c echo.Context, code int, status string, message string, data interface{}) error {
+	resp := map[string]interface{}{
+		"status":  status,
 		"message": message,
-		"data":    data,
-	})
+	}
+	if data != nil {
+		resp["data"] = data
+	}
+	return c.JSON(code, resp)
 }
 
-// CreatedResponse sends a standard created response with status 201 Created
-// Examples of usage:
-// CreatedResponse(w, "Resource created successfully", data)
-func CreatedResponse(w http.ResponseWriter, message string, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "success",
-		"message": message,
-		"data":    data,
-	})
+// SuccessResponse sends a standard success response with HTTP status 200 OK
+// Example usage:
+// return utils.SuccessResponse(c, "Data fetched successfully", data)
+func SuccessResponse(c echo.Context, message string, data interface{}) error {
+	return sendResponse(c, http.StatusOK, "success", message, data)
 }
 
-// NoContentResponse sends a standard no content response with status 204 No Content
-// Examples of usage:
-// NoContentResponse(w)
-func NoContentResponse(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusNoContent)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "success",
-		"message": "No Content",
-	})
+// CreatedResponse sends a standard success response with HTTP status 201 Created
+// Example usage:
+// return utils.CreatedResponse(c, "User created successfully", user)
+func CreatedResponse(c echo.Context, message string, data interface{}) error {
+	return sendResponse(c, http.StatusCreated, "success", message, data)
 }
 
-// BadRequestResponse sends a standard bad request response with status 400 Bad Request
-// Examples of usage:
-// BadRequestResponse(w, "Invalid request parameters")
-func BadRequestResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// NoContentResponse sends a standard success response with HTTP status 204 No Content
+// Example usage:
+// return utils.NoContentResponse(c)
+func NoContentResponse(c echo.Context) error {
+	return sendResponse(c, http.StatusNoContent, "success", "No Content", nil)
 }
 
-// UnauthorizedResponse sends a standard unauthorized response with status 401 Unauthorized
-// Examples of usage:
-// UnauthorizedResponse(w, "Unauthorized access")
-func UnauthorizedResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusUnauthorized)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// BadRequestResponse sends a standard error response with HTTP status 400 Bad Request
+// Example usage:
+// return utils.BadRequestResponse(c, "Invalid request parameters")
+func BadRequestResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusBadRequest, "error", message, nil)
 }
 
-// ForbiddenResponse sends a standard forbidden response with status 403 Forbidden
-// Examples of usage:
-// ForbiddenResponse(w, "Forbidden access")
-func ForbiddenResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusForbidden)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// UnauthorizedResponse sends a standard error response with HTTP status 401 Unauthorized
+// Example usage:
+// return utils.UnauthorizedResponse(c, "Unauthorized access")
+func UnauthorizedResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusUnauthorized, "error", message, nil)
 }
 
-// NotFoundResponse sends a standard not found response with status 404 Not Found
-// Examples of usage:
-// NotFoundResponse(w, "Resource not found")
-func NotFoundResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNotFound)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// ForbiddenResponse sends a standard error response with HTTP status 403 Forbidden
+// Example usage:
+// return utils.ForbiddenResponse(c, "Forbidden access")
+func ForbiddenResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusForbidden, "error", message, nil)
 }
 
-// ConflictResponse sends a standard conflict response with status 409 Conflict
-// Examples of usage:
-// ConflictResponse(w, "Conflict occurred")
-func ConflictResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusConflict)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// NotFoundResponse sends a standard error response with HTTP status 404 Not Found
+// Example usage:
+// return utils.NotFoundResponse(c, "Resource not found")
+func NotFoundResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusNotFound, "error", message, nil)
 }
 
-// UnprocessableEntityResponse sends a standard unprocessable entity response with status 422 Unprocessable Entity
-// Examples of usage:
-// UnprocessableEntityResponse(w, "Unprocessable entity")
-func UnprocessableEntityResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusUnprocessableEntity)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// ConflictResponse sends a standard error response with HTTP status 409 Conflict
+// Example usage:
+// return utils.ConflictResponse(c, "Conflict occurred")
+func ConflictResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusConflict, "error", message, nil)
 }
 
-// InternalServerErrorResponse sends a standard internal server error response with status 500 Internal Server Error
-// Examples of usage:
-// InternalServerErrorResponse(w, "Internal server error")
-func InternalServerErrorResponse(w http.ResponseWriter, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusInternalServerError)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "error",
-		"message": message,
-	})
+// UnprocessableEntityResponse sends a standard error response with HTTP status 422 Unprocessable Entity
+// Example usage:
+// return utils.UnprocessableEntityResponse(c, "Unprocessable entity")
+func UnprocessableEntityResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusUnprocessableEntity, "error", message, nil)
+}
+
+// InternalServerErrorResponse sends a standard error response with HTTP status 500 Internal Server Error
+// Example usage:
+// return utils.InternalServerErrorResponse(c, "Internal server error")
+func InternalServerErrorResponse(c echo.Context, message string) error {
+	return sendResponse(c, http.StatusInternalServerError, "error", message, nil)
 }
