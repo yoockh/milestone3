@@ -42,4 +42,8 @@ var (
 	// Final Donation Errors
 	ErrFinalDonationNotFound   = errors.New("final donation not found")
 	ErrFinalDonationNotFoundID = errors.New("final donation ID not found")
+
+	// Authorization / Generic Errors
+	ErrUnauthorized = errors.New("unauthorized access")
+	ErrForbidden    = errors.New("forbidden access")
 )
