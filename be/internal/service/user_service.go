@@ -72,11 +72,12 @@ func (us *UserServ) GetUserById(id int) (res dto.UserResponse, err error) {
 func (us *UserServ) GetUserByEmail(email, password string) (accessToken string, err error) {
 	user, err := us.userRepo.GetByEmail(email) 
 	if err != nil {
-		log.Println("failed get user by email")
+		log.Println("failed get user by email", err.Error())
 		return "", err
 	}		
 
 	//validation??
+	//mailjet validation kalo ada 
 
 	//compare hash pass and input pass
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
