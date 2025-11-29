@@ -12,7 +12,7 @@ type Router interface {
 	// RegisterUserRoutes(userCtrl *controller.UserController)
 	// RegisterPaymentRoutes(paymentCtrl *controller.PaymentController)
 	// RegisterBiddingRoutes(biddingCtrl *controller.BiddingController)
-	// RegisterFinalDonationRoutes(finalDonationCtrl *controller.FinalDonationController)
+	RegisterFinalDonationRoutes(finalDonationCtrl *controller.FinalDonationController)
 	// RegisterAuthRoutes(authCtrl *controller.AuthController)
 	// RegisterAuctionRoutes(auctionCtrl *controller.AuctionController)
 }
