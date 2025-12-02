@@ -66,8 +66,8 @@ func (ps *PaymentServ) GetPaymentById(id int) (res dto.PaymentInfoResponse, err 
 		UserId: resp.UserId,
 		User: resp.User,
 		AuctionItemId: resp.AuctionItemId,
-		StatusId: resp.StatusId,
-		PaymentStatus: resp.PaymentStatus,
+		Status: resp.Status,
+		// PaymentStatus: resp.PaymentStatus,
 		Amount: resp.Amount,
 	}
 
@@ -87,8 +87,8 @@ func (ps *PaymentServ) GetAllPayment() (res []dto.PaymentInfoResponse, err error
 		UserId: payment.UserId,
 		User: payment.User,
 		AuctionItemId: payment.AuctionItemId,
-		StatusId: payment.StatusId,
-		PaymentStatus: payment.PaymentStatus,
+		Status: payment.Status,
+		// PaymentStatus: payment.PaymentStatus,
 		Amount: payment.Amount,
 		})
 	}

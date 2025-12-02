@@ -5,11 +5,11 @@ type Users struct {
 	Name string
 	Email string
 	Password string `json:"-"`
-	RoleId int
-	Role Role `gorm:"foreignKey:RoleId;references:Id"`
+	Role string
+	// Role Role `gorm:"foreignKey:RoleId;references:Id"`
 }
 
-type Role struct {
-	Id int
-	Name string
-}
+// type Role struct {
+// 	Id int
+// 	Name string
+// }

@@ -5,16 +5,16 @@ type Payment struct {
 	UserId int
 	User Users `gorm:"foreignKey:UserId;references:Id"`
 	AuctionItemId float64
-	StatusId int
-	PaymentStatus PaymentStatus `gorm:"foreignKey:StatusId;references:Id"`
+	Status string
+	// PaymentStatus PaymentStatus `gorm:"foreignKey:StatusId;references:Id"`
 	Amount float64
 }
 
-type PaymentStatus struct {
-	Id int
-	Name string
-}
+// type PaymentStatus struct {
+// 	Id int
+// 	Name string
+// }
 
-func (PaymentStatus) TableName() string {
-    return "payment_status"
-}
+// func (PaymentStatus) TableName() string {
+//     return "payment_status"
+// }

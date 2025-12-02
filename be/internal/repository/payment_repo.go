@@ -21,7 +21,7 @@ func NewPaymentRepository(db *gorm.DB, ctx context.Context) *PaymentRepo {
 }
 
 func (pr *PaymentRepo) Create(payment *entity.Payment) (error) {
-	if err := pr.db.WithContext(pr.ctx).Preload("User").Create(payment).Error; err != nil {
+	if err := pr.db.WithContext(pr.ctx).Omit("Status").Preload("User").Create(payment).Error; err != nil {
 		return err
 	}
 
@@ -29,7 +29,7 @@ func (pr *PaymentRepo) Create(payment *entity.Payment) (error) {
 }
 
 func (pr *PaymentRepo) GetById(id int) (payment entity.Payment, err error) {
-	if err := pr.db.WithContext(pr.ctx).Preload("User").Preload("User.Role").Preload("PaymentStatus").First(&payment, id).Error; err != nil {
+	if err := pr.db.WithContext(pr.ctx).Preload("User").First(&payment, id).Error; err != nil {
 		return entity.Payment{}, err
 	}
 
@@ -37,7 +37,7 @@ func (pr *PaymentRepo) GetById(id int) (payment entity.Payment, err error) {
 }
 
 func (pr *PaymentRepo) GetAll() (payment []entity.Payment, err error) {
-	if err := pr.db.WithContext(pr.ctx).Preload("User").Preload("User.Role").Preload("PaymentStatus").Find(&payment).Error; err != nil {
+	if err := pr.db.WithContext(pr.ctx).Preload("User").Find(&payment).Error; err != nil {
 		return []entity.Payment{}, err
 	}
 

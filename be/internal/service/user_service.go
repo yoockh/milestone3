@@ -63,7 +63,7 @@ func (us *UserServ) GetUserById(id int) (res dto.UserResponse, err error) {
 		Id: user.Id,
 		Name: user.Name,
 		Email: user.Email,
-		RoleId: user.RoleId,
+		Role: user.Role,
 	}
 
 	return userInfo, nil
@@ -85,7 +85,7 @@ func (us *UserServ) GetUserByEmail(email, password string) (accessToken string, 
 		return "", err
 	}
 
-	token, err := utils.GenerateJwtToken(email, user.Role.Name, user.Id)
+	token, err := utils.GenerateJwtToken(email, user.Role, user.Id)
 	if err != nil {
 		log.Println("failed to generate jwt token")
 		return "", err

@@ -10,7 +10,7 @@ type UserResponse struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
 	Email string `json:"email"`
-	RoleId int `json:"role_id"`
+	Role string `json:"role"`
 }
 
 type UserLoginRequest struct {
