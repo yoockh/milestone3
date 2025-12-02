@@ -7,8 +7,8 @@ import (
 
 func (r *EchoRouter) RegisterAuctionRoutes(auctionCtrl *controller.AuctionController) {
 	g := r.echo.Group("/auction/items")
-
 	g.Use(middleware.JWTMiddleware)
+	g.Use(middleware.LoggingMiddleware)
 
 	g.GET("", auctionCtrl.GetAllAuctionItems)
 	g.GET("/:id", auctionCtrl.GetAuctionItemByID)
@@ -19,8 +19,8 @@ func (r *EchoRouter) RegisterAuctionRoutes(auctionCtrl *controller.AuctionContro
 
 func (r *EchoRouter) RegisterAuctionSessionRoutes(sessionCtrl *controller.AuctionSessionController) {
 	g := r.echo.Group("/auction/sessions")
-
 	g.Use(middleware.JWTMiddleware)
+	g.Use(middleware.LoggingMiddleware)
 
 	g.GET("", sessionCtrl.GetAllAuctionSessions)
 	g.GET("/:id", sessionCtrl.GetAuctionSessionByID)

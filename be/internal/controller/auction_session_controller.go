@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"milestone3/be/config"
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/service"
 	"milestone3/be/internal/utils"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,8 +22,28 @@ func NewAuctionSessionController(s service.AuctionSessionService, validate *vali
 }
 
 func (h *AuctionSessionController) CreateAuctionSession(c echo.Context) error {
-	if !utils.IsAdmin(c) {
-		return utils.ForbiddenResponse(c, "only admin can create auction sessions")
+	t := c.Get("user")
+	if t == nil {
+		return utils.UnauthorizedResponse(c, "unauthenticated")
+	}
+	user := t.(*jwt.Token)
+	claim := user.Claims.(jwt.MapClaims)
+	userID := int64(claim["id"].(float64))
+	role := ""
+	if r, ok := claim["role"].(string); ok {
+		role = r
+	}
+
+	if role == "" {
+		db := config.ConnectionDb()
+		var roleName string
+		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
+			role = roleName
+		}
+	}
+
+	if role != "admin" {
+		return utils.ForbiddenResponse(c, "only admin can create auction items")
 	}
 
 	var payload dto.AuctionSessionDTO
@@ -50,7 +72,12 @@ func (h *AuctionSessionController) GetAuctionSessionByID(c echo.Context) error {
 
 	session, err := h.svc.GetByID(id)
 	if err != nil {
-		return utils.InternalServerErrorResponse(c, "failed to retrieve auction session")
+		switch err {
+		case service.ErrAuctionNotFound:
+			return utils.NotFoundResponse(c, err.Error())
+		default:
+			return utils.InternalServerErrorResponse(c, "failed to retrieve auction session")
+		}
 	}
 
 	return utils.SuccessResponse(c, "auction session retrieved successfully", session)
@@ -71,9 +98,30 @@ func (h *AuctionSessionController) GetAllAuctionSessions(c echo.Context) error {
 }
 
 func (h *AuctionSessionController) UpdateAuctionSession(c echo.Context) error {
-	if !utils.IsAdmin(c) {
-		return utils.ForbiddenResponse(c, "only admin can update auction sessions")
+	t := c.Get("user")
+	if t == nil {
+		return utils.UnauthorizedResponse(c, "unauthenticated")
 	}
+	user := t.(*jwt.Token)
+	claim := user.Claims.(jwt.MapClaims)
+	userID := int64(claim["id"].(float64))
+	role := ""
+	if r, ok := claim["role"].(string); ok {
+		role = r
+	}
+
+	if role == "" {
+		db := config.ConnectionDb()
+		var roleName string
+		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
+			role = roleName
+		}
+	}
+
+	if role != "admin" {
+		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -91,16 +139,46 @@ func (h *AuctionSessionController) UpdateAuctionSession(c echo.Context) error {
 
 	updatedSession, err := h.svc.Update(id, &payload)
 	if err != nil {
-		return utils.InternalServerErrorResponse(c, "failed to update auction session")
+		switch err {
+		case service.ErrAuctionNotFoundID:
+			return utils.NotFoundResponse(c, err.Error())
+		case service.ErrActiveSession:
+			return utils.BadRequestResponse(c, err.Error())
+		case service.ErrInvalidDate:
+			return utils.BadRequestResponse(c, err.Error())
+		default:
+			return utils.InternalServerErrorResponse(c, "failed to update auction session")
+		}
 	}
 
 	return utils.SuccessResponse(c, "auction session updated successfully", updatedSession)
 }
 
 func (h *AuctionSessionController) DeleteAuctionSession(c echo.Context) error {
-	if !utils.IsAdmin(c) {
-		return utils.ForbiddenResponse(c, "only admin can delete auction sessions")
+	t := c.Get("user")
+	if t == nil {
+		return utils.UnauthorizedResponse(c, "unauthenticated")
 	}
+	user := t.(*jwt.Token)
+	claim := user.Claims.(jwt.MapClaims)
+	userID := int64(claim["id"].(float64))
+	role := ""
+	if r, ok := claim["role"].(string); ok {
+		role = r
+	}
+
+	if role == "" {
+		db := config.ConnectionDb()
+		var roleName string
+		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
+			role = roleName
+		}
+	}
+
+	if role != "admin" {
+		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -109,7 +187,14 @@ func (h *AuctionSessionController) DeleteAuctionSession(c echo.Context) error {
 
 	err = h.svc.Delete(id)
 	if err != nil {
-		return utils.InternalServerErrorResponse(c, "failed to delete auction session")
+		switch err {
+		case service.ErrAuctionNotFoundID:
+			return utils.NotFoundResponse(c, err.Error())
+		case service.ErrActiveSession, service.ErrInvalidDate:
+			return utils.BadRequestResponse(c, err.Error())
+		default:
+			return utils.InternalServerErrorResponse(c, "failed to delete auction session")
+		}
 	}
 
 	return utils.SuccessResponse(c, "auction session deleted successfully", nil)

@@ -16,6 +16,7 @@ type Router interface {
 	// RegisterAuthRoutes(authCtrl *controller.AuthController)
 	RegisterAuctionRoutes(auctionCtrl *controller.AuctionController)
 	RegisterAuctionSessionRoutes(sessionCtrl *controller.AuctionSessionController)
+	RegisterBidRoutes(bidCtrl *controller.BidController)
 }
 
 type EchoRouter struct {

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"log/slog"
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/entity"
@@ -11,7 +10,7 @@ import (
 
 type sessionService struct {
 	repo      repository.AuctionSessionRepository
-	// redisRepo repository.SessionRedisRepository
+	redisRepo repository.SessionRedisRepository
 	logger    *slog.Logger
 }
 
@@ -58,7 +57,7 @@ func (s *sessionService) GetByID(id int64) (dto.AuctionSessionDTO, error) {
 	session, err := s.repo.GetByID(id)
 	if err != nil {
 		s.logger.Error("Failed to get auction session by ID", "error", err)
-		return dto.AuctionSessionDTO{}, ErrAuctionNotFound
+		return dto.AuctionSessionDTO{}, ErrSessionNotFoundID
 	}
 
 	return dto.AuctionSessionResponse(*session), nil
@@ -68,7 +67,7 @@ func (s *sessionService) GetAll() ([]dto.AuctionSessionDTO, error) {
 	sessions, err := s.repo.GetAll()
 	if err != nil {
 		s.logger.Error("Failed to get all auction sessions", "error", err)
-		return nil, ErrAuctionNotFound
+		return nil, ErrSessionNotFoundID
 	}
 
 	var sessionDTOs []dto.AuctionSessionDTO
@@ -83,15 +82,15 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 	session, err := s.repo.GetByID(id)
 	if err != nil {
 		s.logger.Error("Failed to get auction session by ID for update", "error", err)
-		return dto.AuctionSessionDTO{}, ErrAuctionNotFoundID
+		return dto.AuctionSessionDTO{}, ErrSessionNotFoundID
 	}
 
 	now := time.Now()
 	if session.StartTime.Before(now) && session.EndTime.After(now) {
-		return dto.AuctionSessionDTO{}, errors.New("cannot update an active session")
+		return dto.AuctionSessionDTO{}, ErrActiveSession
 	}
 	if session.EndTime.Before(now) {
-		return dto.AuctionSessionDTO{}, errors.New("session already ended")
+		return dto.AuctionSessionDTO{}, ErrInvalidDate
 	}
 
 	if d.Name != "" {
@@ -105,7 +104,7 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 	}
 
 	if session.EndTime.Before(session.StartTime) {
-		return dto.AuctionSessionDTO{}, ErrInvalidAuction
+		return dto.AuctionSessionDTO{}, ErrInvalidDate
 	}
 
 	// assign to DB
@@ -133,19 +132,17 @@ func (s *sessionService) Delete(id int64) error {
 	session, err := s.repo.GetByID(id)
 	if err != nil {
 		s.logger.Error("Failed to get auction session by ID for delete", "error", err)
-		return ErrAuctionNotFoundID
+		return ErrSessionNotFoundID
 	}
 
 	now := time.Now()
 
 	if session.StartTime.Before(now) && session.EndTime.After(now) {
-		// TODO: error contract
-		return errors.New("cannot delete an active session")
+		return ErrActiveSession
 	}
 
 	if session.EndTime.Before(now) {
-		// TODO: error contract
-		return errors.New("session already ended")
+		return ErrInvalidDate
 	}
 
 	err = s.repo.Delete(id)

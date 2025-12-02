@@ -9,7 +9,7 @@ import (
 type itemsService struct {
 	repo   repository.AuctionItemRepository
 	logger *slog.Logger
-	ai     repository.GeminiRepository
+	ai     repository.AIRepository
 }
 
 type AuctionItemService interface {
@@ -20,7 +20,7 @@ type AuctionItemService interface {
 	Delete(id int64) error
 }
 
-func NewAuctionItemService(r repository.AuctionItemRepository, aiRepo repository.GeminiRepository, logger *slog.Logger) AuctionItemService {
+func NewAuctionItemService(r repository.AuctionItemRepository, aiRepo repository.AIRepository, logger *slog.Logger) AuctionItemService {
 	return &itemsService{repo: r, logger: logger, ai: aiRepo}
 }
 
@@ -38,14 +38,21 @@ func (s *itemsService) Create(itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, 
 
 	estimatedPrice, err := s.ai.EstimateStartingPrice(estimationReq)
 	if err != nil {
-		s.logger.Error("Failed to estimate starting price", "error", err)
-		return dto.AuctionItemDTO{}, ErrInvalidAuction
+		// AI estimation failed — log and fallback to provided starting price or sensible default
+		s.logger.Warn("EstimateStartingPrice failed, falling back to provided/default price", "error", err)
+		// prefer client-provided StartingPrice if present
+		if itemDTO.StartingPrice > 0 {
+			estimatedPrice = itemDTO.StartingPrice
+		} else {
+			// sensible default to avoid blocking creation
+			estimatedPrice = 100
+		}
 	}
 
 	item.StartingPrice = estimatedPrice
 
 	if item.Status == "" {
-		item.Status = "pending"
+		item.Status = "scheduled"
 	}
 
 	err = s.repo.Create(&item)
@@ -85,6 +92,7 @@ func (s *itemsService) GetByID(id int64) (dto.AuctionItemDTO, error) {
 func (s *itemsService) Update(id int64, itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, error) {
 	existingItem, err := s.repo.GetByID(id)
 	if err != nil {
+		s.logger.Error("Failed to get auction item by ID for update", "error", err)
 		return dto.AuctionItemDTO{}, ErrAuctionNotFoundID
 	}
 

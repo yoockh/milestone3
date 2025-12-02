@@ -35,7 +35,7 @@ func (r *auctionItemRepository) GetAll() ([]entity.AuctionItem, error) {
 
 func (r *auctionItemRepository) GetByID(id int64) (*entity.AuctionItem, error) {
 	var item entity.AuctionItem
-	err := r.db.Preload("Session").Preload("Photos").First(&item, id).Error
+	err := r.db.Preload("Session").First(&item, id).Error
 	return &item, err
 }
 
