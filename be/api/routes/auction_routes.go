@@ -17,14 +17,14 @@ func (r *EchoRouter) RegisterAuctionRoutes(auctionCtrl *controller.AuctionContro
 	g.DELETE("/:id", auctionCtrl.DeleteAuctionItem)
 }
 
-// func (r *EchoRouter) RegisterAuctionSessionRoutes(sessionCtrl *controller.AuctionSessionController) {
-// 	g := r.echo.Group("/auction/sessions")
+func (r *EchoRouter) RegisterAuctionSessionRoutes(sessionCtrl *controller.AuctionSessionController) {
+	g := r.echo.Group("/auction/sessions")
 
-// 	g.Use(middleware.JWTMiddleware)
+	g.Use(middleware.JWTMiddleware)
 
-// 	g.GET("", sessionCtrl.GetAllAuctionSessions)
-// 	g.GET("/:id", sessionCtrl.GetAuctionSessionByID)
-// 	g.POST("", sessionCtrl.CreateAuctionSession)
-// 	g.PUT("/:id", sessionCtrl.UpdateAuctionSession)
-// 	g.DELETE("/:id", sessionCtrl.DeleteAuctionSession)
-// }
+	g.GET("", sessionCtrl.GetAllAuctionSessions)
+	g.GET("/:id", sessionCtrl.GetAuctionSessionByID)
+	g.POST("", sessionCtrl.CreateAuctionSession)
+	g.PUT("/:id", sessionCtrl.UpdateAuctionSession)
+	g.DELETE("/:id", sessionCtrl.DeleteAuctionSession)
+}

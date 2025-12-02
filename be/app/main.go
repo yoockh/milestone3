@@ -69,6 +69,8 @@ func main() {
 	router.RegisterDonationRoutes(donationCtrl)
 	router.RegisterFinalDonationRoutes(finalDonationCtrl)
 	router.RegisterPaymentRoutes(paymentCtrl)
+	// router.RegisterAuctionRoutes(auctionCtrl)
+	// router.RegisterAuctionSessionRoutes(auctionSessionCtrl)
 
 	port := os.Getenv("PORT")
 	if port == "" {
