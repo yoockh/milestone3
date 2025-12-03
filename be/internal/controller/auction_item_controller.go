@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"milestone3/be/config"
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/service"
 	"milestone3/be/internal/utils"
@@ -21,29 +20,51 @@ func NewAuctionController(s service.AuctionItemService, validate *validator.Vali
 	return &AuctionController{svc: s, validate: validate}
 }
 
+func getUserIDFromTokenItem(c echo.Context) (int64, error) {
+	token := c.Get("user")
+	if token == nil {
+		return 0, echo.NewHTTPError(401, "unauthenticated")
+	}
+
+	claims, ok := token.(*jwt.Token).Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, echo.NewHTTPError(401, "invalid token")
+	}
+
+	userIDFloat, ok := claims["id"].(float64)
+	if !ok {
+		return 0, echo.NewHTTPError(401, "invalid token")
+	}
+
+	return int64(userIDFloat), nil
+}
+
+// Helper function to check if user is admin from JWT token
+func isAdminFromTokenItem(c echo.Context) bool {
+	token := c.Get("user")
+	if token == nil {
+		return false
+	}
+
+	claims, ok := token.(*jwt.Token).Claims.(jwt.MapClaims)
+	if !ok {
+		return false
+	}
+
+	role, ok := claims["role"].(string)
+	return ok && role == "admin"
+}
+
 func (h *AuctionController) CreateAuctionItem(c echo.Context) error {
-	t := c.Get("user")
-	if t == nil {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
-	}
-	user := t.(*jwt.Token)
-	claim := user.Claims.(jwt.MapClaims)
-	userID := int64(claim["id"].(float64))
-	role := ""
-	if r, ok := claim["role"].(string); ok {
-		role = r
-	}
-
-	if role == "" {
-		db := config.ConnectionDb()
-		var roleName string
-		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
-			role = roleName
-		}
-	}
-
-	if role != "admin" {
+	// Check if user is admin
+	if !isAdminFromTokenItem(c) {
 		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	}
+
+	// Get user ID from JWT token
+	userID, err := getUserIDFromTokenItem(c)
+	if err != nil {
+		return utils.UnauthorizedResponse(c, "unauthenticated")
 	}
 
 	var payload dto.AuctionItemDTO
@@ -94,28 +115,9 @@ func (h *AuctionController) GetAuctionItemByID(c echo.Context) error {
 }
 
 func (h *AuctionController) UpdateAuctionItem(c echo.Context) error {
-	t := c.Get("user")
-	if t == nil {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
-	}
-	user := t.(*jwt.Token)
-	claim := user.Claims.(jwt.MapClaims)
-	userID := int64(claim["id"].(float64))
-	role := ""
-	if r, ok := claim["role"].(string); ok {
-		role = r
-	}
-
-	if role == "" {
-		db := config.ConnectionDb()
-		var roleName string
-		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
-			role = roleName
-		}
-	}
-
-	if role != "admin" {
-		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	// Check if user is admin
+	if !isAdminFromTokenItem(c) {
+		return utils.ForbiddenResponse(c, "only admin can update auction items")
 	}
 
 	idStr := c.Param("id")
@@ -149,18 +151,8 @@ func (h *AuctionController) UpdateAuctionItem(c echo.Context) error {
 }
 
 func (h *AuctionController) DeleteAuctionItem(c echo.Context) error {
-	t := c.Get("user")
-	if t == nil {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
-	}
-	user := t.(*jwt.Token)
-	claim := user.Claims.(jwt.MapClaims)
-	role := ""
-	if r, ok := claim["role"].(string); ok {
-		role = r
-	}
-
-	if role != "admin" {
+	// Check if user is admin
+	if !isAdminFromTokenItem(c) {
 		return utils.ForbiddenResponse(c, "only admin can delete auction items")
 	}
 

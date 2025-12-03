@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"milestone3/be/config"
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/service"
 	"milestone3/be/internal/utils"
@@ -21,29 +20,24 @@ func NewAuctionSessionController(s service.AuctionSessionService, validate *vali
 	return &AuctionSessionController{svc: s, validate: validate}
 }
 
+func isAdminFromTokenSession(c echo.Context) bool {
+	token := c.Get("user")
+	if token == nil {
+		return false
+	}
+
+	claims, ok := token.(*jwt.Token).Claims.(jwt.MapClaims)
+	if !ok {
+		return false
+	}
+
+	role, ok := claims["role"].(string)
+	return ok && role == "admin"
+}
+
 func (h *AuctionSessionController) CreateAuctionSession(c echo.Context) error {
-	t := c.Get("user")
-	if t == nil {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
-	}
-	user := t.(*jwt.Token)
-	claim := user.Claims.(jwt.MapClaims)
-	userID := int64(claim["id"].(float64))
-	role := ""
-	if r, ok := claim["role"].(string); ok {
-		role = r
-	}
-
-	if role == "" {
-		db := config.ConnectionDb()
-		var roleName string
-		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
-			role = roleName
-		}
-	}
-
-	if role != "admin" {
-		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	if !isAdminFromTokenSession(c) {
+		return utils.ForbiddenResponse(c, "only admin can create auction sessions")
 	}
 
 	var payload dto.AuctionSessionDTO
@@ -98,28 +92,8 @@ func (h *AuctionSessionController) GetAllAuctionSessions(c echo.Context) error {
 }
 
 func (h *AuctionSessionController) UpdateAuctionSession(c echo.Context) error {
-	t := c.Get("user")
-	if t == nil {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
-	}
-	user := t.(*jwt.Token)
-	claim := user.Claims.(jwt.MapClaims)
-	userID := int64(claim["id"].(float64))
-	role := ""
-	if r, ok := claim["role"].(string); ok {
-		role = r
-	}
-
-	if role == "" {
-		db := config.ConnectionDb()
-		var roleName string
-		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
-			role = roleName
-		}
-	}
-
-	if role != "admin" {
-		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	if !isAdminFromTokenSession(c) {
+		return utils.ForbiddenResponse(c, "only admin can update auction sessions")
 	}
 
 	idStr := c.Param("id")
@@ -155,28 +129,8 @@ func (h *AuctionSessionController) UpdateAuctionSession(c echo.Context) error {
 }
 
 func (h *AuctionSessionController) DeleteAuctionSession(c echo.Context) error {
-	t := c.Get("user")
-	if t == nil {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
-	}
-	user := t.(*jwt.Token)
-	claim := user.Claims.(jwt.MapClaims)
-	userID := int64(claim["id"].(float64))
-	role := ""
-	if r, ok := claim["role"].(string); ok {
-		role = r
-	}
-
-	if role == "" {
-		db := config.ConnectionDb()
-		var roleName string
-		if err := db.Raw("SELECT role FROM users WHERE id = ?", userID).Scan(&roleName).Error; err == nil {
-			role = roleName
-		}
-	}
-
-	if role != "admin" {
-		return utils.ForbiddenResponse(c, "only admin can create auction items")
+	if !isAdminFromTokenSession(c) {
+		return utils.ForbiddenResponse(c, "only admin can delete auction sessions")
 	}
 
 	idStr := c.Param("id")

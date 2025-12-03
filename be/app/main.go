@@ -9,7 +9,6 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/redis/go-redis/v9"
 
 	"milestone3/be/api/routes"
 	"milestone3/be/config"
@@ -46,15 +45,9 @@ func main() {
 	paymentRepo := repository.NewPaymentRepository(db, ctx)
 	auctionItemRepo := repository.NewAuctionItemRepository(db)
 	auctionSessionRepo := repository.NewAuctionSessionRepository(db)
-
 	bidRepo := repository.NewBidRepository(db)
 
-	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	redisClient := redis.NewClient(opt)
-
+	redisClient := config.ConnectRedis(ctx)
 	redisRepo := repository.NewBidRedisRepository(redisClient, ctx)
 	auctionRedisRepo := repository.NewSessionRedisRepository(redisClient, ctx)
 
@@ -84,7 +77,7 @@ func main() {
 	paymentCtrl := controller.NewPaymentController(validate, paymentSvc)
 	auctionCtrl := controller.NewAuctionController(auctionSvc, validate)
 	auctionSessionCtrl := controller.NewAuctionSessionController(auctionSessionSvc, validate)
-	bidCtrl := controller.NewBidController(bidSvc, validate)
+	bidCtrl := controller.NewBidController(bidSvc, auctionSessionSvc, validate)
 
 	// echo + router
 	e := echo.New()

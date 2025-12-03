@@ -18,7 +18,6 @@ func NewArticleController(s service.ArticleService) *ArticleController {
 	return &ArticleController{svc: s}
 }
 
-// public: GET /articles
 func (h *ArticleController) GetAllArticles(c echo.Context) error {
 	articles, err := h.svc.GetAllArticles()
 	if err != nil {
@@ -27,7 +26,6 @@ func (h *ArticleController) GetAllArticles(c echo.Context) error {
 	return utils.SuccessResponse(c, "articles fetched", articles)
 }
 
-// public: GET /articles/:id
 func (h *ArticleController) GetArticleByID(c echo.Context) error {
 	idParam := c.Param("id")
 	id64, err := strconv.ParseUint(idParam, 10, 64)
@@ -44,7 +42,6 @@ func (h *ArticleController) GetArticleByID(c echo.Context) error {
 	return utils.SuccessResponse(c, "article fetched", article)
 }
 
-// admin-only: POST /articles
 func (h *ArticleController) CreateArticle(c echo.Context) error {
 	if !utils.IsAdmin(c) {
 		return utils.ForbiddenResponse(c, "admin only")
@@ -59,7 +56,6 @@ func (h *ArticleController) CreateArticle(c echo.Context) error {
 	return utils.CreatedResponse(c, "article created", nil)
 }
 
-// admin-only: PUT /articles/:id
 func (h *ArticleController) UpdateArticle(c echo.Context) error {
 	if !utils.IsAdmin(c) {
 		return utils.ForbiddenResponse(c, "admin only")
@@ -83,7 +79,6 @@ func (h *ArticleController) UpdateArticle(c echo.Context) error {
 	return utils.SuccessResponse(c, "article updated", nil)
 }
 
-// admin-only: DELETE /articles/:id
 func (h *ArticleController) DeleteArticle(c echo.Context) error {
 	if !utils.IsAdmin(c) {
 		return utils.ForbiddenResponse(c, "admin only")
