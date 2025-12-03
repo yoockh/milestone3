@@ -21,10 +21,13 @@ var (
 	ErrAuctionNotFound      = errors.New("auction not found")
 	ErrInvalidAuction       = errors.New("invalid auction data")
 	ErrAuctionNotFoundID    = errors.New("auction ID not found")
+	ErrSessionNotFoundID    = errors.New("auction session ID not found")
 	ErrAuctionNotFoundTitle = errors.New("auction title not found")
 	ErrAuctionNotFoundDesc  = errors.New("auction description not found")
 	ErrAuctionNotFoundStart = errors.New("auction start time not found")
 	ErrAuctionNotFoundEnd   = errors.New("auction end time not found")
+	ErrInvalidDate          = errors.New("end time must be after start time")
+	ErrActiveSession        = errors.New("cannot modify an active auction session")
 	// Donation Errors
 	ErrDonationNotFound          = errors.New("donation not found")
 	ErrInvalidDonation           = errors.New("invalid donation data")
@@ -39,9 +42,13 @@ var (
 	ErrInvalidBidding        = errors.New("invalid bidding data")
 	ErrBiddingNotFoundID     = errors.New("bidding ID not found")
 	ErrBiddingNotFoundAmount = errors.New("bidding amount not found")
+	ErrBidTooLow             = errors.New("bid too low")
 	// Final Donation Errors
 	ErrFinalDonationNotFound   = errors.New("final donation not found")
 	ErrFinalDonationNotFoundID = errors.New("final donation ID not found")
+	// image Errors
+	ErrImageNotFound   = errors.New("image not found")
+	ErrSignedURLFailed = errors.New("signed URL generation failed")
 
 	// Authorization / Generic Errors
 	ErrUnauthorized = errors.New("unauthorized access")

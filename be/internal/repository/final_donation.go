@@ -19,12 +19,13 @@ func NewFinalDonationRepository(db *gorm.DB) FinalDonationRepository {
 	return &finalDonationRepository{db: db}
 }
 
-// Return final_donations where the related donation has status = 'verified_for_donation'
+// Return final_donations where the related donation has status = entity.StatusVerifiedForDonation
 func (r *finalDonationRepository) GetAllFinalDonations() ([]entity.FinalDonation, error) {
 	var finalDonations []entity.FinalDonation
 	err := r.db.
 		Joins("JOIN donations d ON d.id = final_donations.donation_id").
-		Where("d.status = ?", "verified_for_donation").
+		Where("d.status = ?", entity.StatusVerifiedForDonation).
+		Preload("Donation").
 		Find(&finalDonations).Error
 	return finalDonations, err
 }
@@ -34,7 +35,8 @@ func (r *finalDonationRepository) GetAllFinalDonationsByUserID(userID int) ([]en
 	var finalDonations []entity.FinalDonation
 	err := r.db.
 		Joins("JOIN donations d ON d.id = final_donations.donation_id").
-		Where("d.user_id = ? AND d.status = ?", userID, "verified_for_donation").
+		Where("d.user_id = ? AND d.status = ?", userID, entity.StatusVerifiedForDonation).
+		Preload("Donation").
 		Find(&finalDonations).Error
 	return finalDonations, err
 }

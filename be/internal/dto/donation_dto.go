@@ -7,15 +7,15 @@ import (
 )
 
 type DonationDTO struct {
-	ID          uint      `json:"id,omitempty" validate:"omitempty"`
-	UserID      uint      `json:"user_id,omitempty" validate:"required"`
-	Title       string    `json:"title,omitempty" validate:"required"`
-	Description string    `json:"description,omitempty" validate:"required"`
-	Category    string    `json:"category,omitempty" validate:"required"`
-	Condition   string    `json:"condition,omitempty" validate:"required"`
-	Status      string    `json:"status,omitempty" validate:"required"`
-	Photos      []string  `json:"photos,omitempty" validate:"dive,url"`
-	CreatedAt   time.Time `json:"created_at,omitempty"`
+	ID          uint                  `json:"id,omitempty" validate:"omitempty"`
+	UserID      uint                  `json:"user_id,omitempty" validate:"required"`
+	Title       string                `json:"title,omitempty" validate:"required"`
+	Description string                `json:"description,omitempty" validate:"required"`
+	Category    string                `json:"category,omitempty" validate:"required"`
+	Condition   string                `json:"condition,omitempty" validate:"required"`
+	Status      entity.StatusDonation `json:"status,omitempty" validate:"required"`
+	Photos      []string              `json:"photos,omitempty" validate:"dive,url"`
+	CreatedAt   time.Time             `json:"created_at,omitempty"`
 }
 
 // DonationRequest converts DTO to entity.Donation
@@ -63,20 +63,4 @@ func DonationResponses(ms []entity.Donation) []DonationDTO {
 		res = append(res, DonationResponse(m))
 	}
 	return res
-}
-
-type DonationPhoto struct {
-	URL string
-}
-
-type Donation struct {
-	ID          uint
-	UserID      uint
-	Title       string
-	Description string
-	Category    string
-	Condition   string
-	Status      string
-	Photos      []DonationPhoto
-	CreatedAt   time.Time
 }

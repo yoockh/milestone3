@@ -12,9 +12,12 @@ func (r *EchoRouter) RegisterDonationRoutes(donationCtrl *controller.DonationCon
 	donationRoutes.GET("", donationCtrl.GetAllDonations)
 	donationRoutes.GET("/:id", donationCtrl.GetDonationByID)
 
-	// authenticated actions (owner or admin logic enforced in controller/service)
-	donationRoutes.POST("", donationCtrl.CreateDonation, middleware.JWTMiddleware)
-	donationRoutes.PUT("/:id", donationCtrl.UpdateDonation, middleware.JWTMiddleware)
-	donationRoutes.PATCH("/:id", donationCtrl.PatchDonation, middleware.JWTMiddleware)
-	donationRoutes.DELETE("/:id", donationCtrl.DeleteDonation, middleware.JWTMiddleware)
+	// authenticated group
+	auth := donationRoutes.Group("")
+	auth.Use(middleware.JWTMiddleware)
+
+	auth.POST("", donationCtrl.CreateDonation)
+	auth.PUT("/:id", donationCtrl.UpdateDonation)
+	auth.PATCH("/:id", donationCtrl.PatchDonation)
+	auth.DELETE("/:id", donationCtrl.DeleteDonation)
 }

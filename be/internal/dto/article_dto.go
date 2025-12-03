@@ -10,6 +10,7 @@ type ArticleDTO struct {
 	Title     string    `json:"title,omitempty" validate:"required"`
 	Content   string    `json:"content,omitempty" validate:"required"`
 	Week      int       `json:"week,omitempty" validate:"required"`
+	Image     string    `json:"image,omitempty" validate:"omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
@@ -20,6 +21,7 @@ func ArticleRequest(a ArticleDTO) (entity.Article, error) {
 		Title:     a.Title,
 		Content:   a.Content,
 		Week:      a.Week,
+		Image:     a.Image,
 		CreatedAt: a.CreatedAt,
 	}, nil
 }
@@ -31,6 +33,7 @@ func ArticleResponse(m entity.Article) ArticleDTO {
 		Title:     m.Title,
 		Content:   m.Content,
 		Week:      m.Week,
+		Image:     m.Image,
 		CreatedAt: m.CreatedAt,
 	}
 }

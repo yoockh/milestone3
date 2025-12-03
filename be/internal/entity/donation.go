@@ -4,16 +4,24 @@ import (
 	"time"
 )
 
+type StatusDonation string
+
+var (
+	StatusPending             StatusDonation = "pending"
+	StatusVerifiedForAuction  StatusDonation = "verified_for_auction"
+	StatusVerifiedForDonation StatusDonation = "verified_for_donation"
+)
+
 type Donation struct {
-	ID          uint      `gorm:"primaryKey;autoIncrement" json:"id"`
-	UserID      uint      `gorm:"not null" json:"user_id"`
-	User        Users     `gorm:"foreignKey:UserID" json:"user,omitempty"` // Assuming User entity exists elsewhere
-	Title       string    `gorm:"size:255;not null" json:"title"`
-	Description string    `gorm:"type:text" json:"description"`
-	Category    string    `gorm:"size:255" json:"category"`
-	Condition   string    `gorm:"size:255" json:"condition"`
-	Status      string    `gorm:"type:donation_status;default:'pending';not null" json:"status"` // enum: pending, verified_for_auction, verified_for_donation
-	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+	ID          uint           `gorm:"primaryKey;autoIncrement" json:"id"`
+	UserID      uint           `gorm:"not null" json:"user_id"`
+	User        Users          `gorm:"foreignKey:UserID" json:"user,omitempty"` // Assuming User entity exists elsewhere
+	Title       string         `gorm:"size:255;not null" json:"title"`
+	Description string         `gorm:"type:text" json:"description"`
+	Category    string         `gorm:"size:255" json:"category"`
+	Condition   string         `gorm:"size:255" json:"condition"`
+	Status      StatusDonation `gorm:"type:donation_status;default:'pending';not null" json:"status"` // enum: pending, verified_for_auction, verified_for_donation
+	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
 
 	Photos []DonationPhoto `gorm:"foreignKey:DonationID;constraint:OnDelete:CASCADE" json:"photos,omitempty"`
 }

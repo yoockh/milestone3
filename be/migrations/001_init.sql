@@ -17,13 +17,8 @@ CREATE TABLE users (
     name VARCHAR(255),
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role user_role NOT NULL,
+    role INT NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
     created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL
 );
 
 CREATE TABLE donations (
@@ -41,16 +36,6 @@ CREATE TABLE donation_photos (
     id SERIAL PRIMARY KEY,
     donation_id INT REFERENCES donations(id),
     url VARCHAR(255)
-);
-
-CREATE TABLE verifications (
-    id SERIAL PRIMARY KEY,
-    donation_id INT REFERENCES donations(id),
-    verifier_id INT REFERENCES users(id),
-    condition VARCHAR(255),
-    category VARCHAR(255),
-    decision verification_decision NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE auction_sessions (

@@ -8,12 +8,16 @@ import (
 func (r *EchoRouter) RegisterArticleRoutes(articleCtrl *controller.ArticleController) {
 	articleRoutes := r.echo.Group("/articles")
 
-	// public endpoints
+	// public
 	articleRoutes.GET("", articleCtrl.GetAllArticles)
 	articleRoutes.GET("/:id", articleCtrl.GetArticleByID)
 
-	// admin-protected: require JWT auth then admin check
-	articleRoutes.POST("", articleCtrl.CreateArticle, middleware.JWTMiddleware, middleware.RequireAdmin)
-	articleRoutes.PUT("/:id", articleCtrl.UpdateArticle, middleware.JWTMiddleware, middleware.RequireAdmin)
-	articleRoutes.DELETE("/:id", articleCtrl.DeleteArticle, middleware.JWTMiddleware, middleware.RequireAdmin)
+	// admin-only
+	admin := articleRoutes.Group("")
+	admin.Use(middleware.JWTMiddleware)
+	admin.Use(middleware.RequireAdmin)
+
+	admin.POST("", articleCtrl.CreateArticle)
+	admin.PUT("/:id", articleCtrl.UpdateArticle)
+	admin.DELETE("/:id", articleCtrl.DeleteArticle)
 }

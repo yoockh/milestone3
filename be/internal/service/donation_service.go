@@ -1,7 +1,11 @@
 package service
 
 import (
+	"context"
 	"errors"
+	"io"
+	"time"
+
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/repository"
 
@@ -10,25 +14,24 @@ import (
 
 type DonationService interface {
 	CreateDonation(donationDTO dto.DonationDTO) error
-	// now accept caller identity so service can return appropriate list
 	GetAllDonations(userID uint, isAdmin bool) ([]dto.DonationDTO, error)
 	GetDonationByID(id uint) (dto.DonationDTO, error)
-	// Update/Delete now require caller identity: userID and isAdmin flag
 	UpdateDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error
 	DeleteDonation(id uint, userID uint, isAdmin bool) error
-
 	PatchDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error
-
-	// helper to check permission
 	CanManageDonations(userID uint, ownerID uint, isAdmin bool) bool
 }
 
 type donationService struct {
-	repo repository.DonationRepo
+	repo         repository.DonationRepo
+	privateStore repository.GCPStorageRepo
 }
 
-func NewDonationService(repo repository.DonationRepo) DonationService {
-	return &donationService{repo: repo}
+func NewDonationService(repo repository.DonationRepo, privateStore repository.GCPStorageRepo) DonationService {
+	return &donationService{
+		repo:         repo,
+		privateStore: privateStore,
+	}
 }
 
 func (s *donationService) CreateDonation(donationDTO dto.DonationDTO) error {
@@ -39,7 +42,6 @@ func (s *donationService) CreateDonation(donationDTO dto.DonationDTO) error {
 	return s.repo.CreateDonation(donation)
 }
 
-// now service decides which repo query to run based on role
 func (s *donationService) GetAllDonations(userID uint, isAdmin bool) ([]dto.DonationDTO, error) {
 	if isAdmin {
 		donations, err := s.repo.GetAllDonations()
@@ -48,7 +50,6 @@ func (s *donationService) GetAllDonations(userID uint, isAdmin bool) ([]dto.Dona
 		}
 		return dto.DonationResponses(donations), nil
 	}
-	// non-admin: only own donations
 	donations, err := s.repo.GetDonationsByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -73,7 +74,6 @@ func (s *donationService) UpdateDonation(donationDTO dto.DonationDTO, userID uin
 		return err
 	}
 
-	// verify existing donation and owner
 	existing, err := s.repo.GetDonationByID(donation.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -90,7 +90,6 @@ func (s *donationService) UpdateDonation(donationDTO dto.DonationDTO, userID uin
 }
 
 func (s *donationService) DeleteDonation(id uint, userID uint, isAdmin bool) error {
-	// fetch to check owner
 	donation, err := s.repo.GetDonationByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -112,7 +111,6 @@ func (s *donationService) PatchDonation(donationDTO dto.DonationDTO, userID uint
 		return err
 	}
 
-	// verify existing donation and owner
 	existing, err := s.repo.GetDonationByID(donation.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -133,4 +131,24 @@ func (s *donationService) CanManageDonations(userID uint, ownerID uint, isAdmin 
 		return true
 	}
 	return userID == ownerID
+}
+
+// ======================
+//  METHODS FOR GCS
+// ======================
+
+func (s *donationService) UploadDonationImage(ctx context.Context, file io.Reader, fileName string) (string, error) {
+	objectName, err := s.privateStore.UploadFile(ctx, file, fileName)
+	if err != nil {
+		return ErrImageNotFound.Error(), err
+	}
+	return objectName, nil
+}
+
+func (s *donationService) GetDonationImageURL(ctx context.Context, objectName string) (string, error) {
+	url, err := s.privateStore.GenerateSignedURL(ctx, objectName, 10*time.Minute)
+	if err != nil {
+		return ErrSignedURLFailed.Error(), err
+	}
+	return url, nil
 }
