@@ -15,6 +15,7 @@ type Router interface {
 	RegisterFinalDonationRoutes(finalDonationCtrl *controller.FinalDonationController)
 	// RegisterAuthRoutes(authCtrl *controller.AuthController)
 	// RegisterAuctionRoutes(auctionCtrl *controller.AuctionController)
+	RegisterAdminRoutes(adminCtrl *controller.AdminController)
 }
 
 type EchoRouter struct {

@@ -39,6 +39,7 @@ func main() {
 	donationRepo := repository.NewDonationRepo(db)
 	finalDonationRepo := repository.NewFinalDonationRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db, ctx)
+	adminRepo := repository.NewAdminRepository(db, ctx)
 
 	// services
 	userSvc := service.NewUserService(userRepo)
@@ -46,10 +47,12 @@ func main() {
 	donationSvc := service.NewDonationService(donationRepo)
 	finalDonationSvc := service.NewFinalDonationService(finalDonationRepo)
 	paymentSvc := service.NewPaymentService(paymentRepo)
+	adminSvc := service.NewAdminService(adminRepo)
 
 	// controllers
 	userCtrl := controller.NewUserController(validate, userSvc)
 	articleCtrl := controller.NewArticleController(articleSvc)
+	adminCtrl := controller.NewAdminController(adminSvc)
 
 	var donationCtrl *controller.DonationController
 	if gcsRepo != nil {
@@ -69,6 +72,7 @@ func main() {
 	router.RegisterDonationRoutes(donationCtrl)
 	router.RegisterFinalDonationRoutes(finalDonationCtrl)
 	router.RegisterPaymentRoutes(paymentCtrl)
+	router.RegisterAdminRoutes(adminCtrl)
 
 	port := os.Getenv("PORT")
 	if port == "" {

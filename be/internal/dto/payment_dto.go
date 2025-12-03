@@ -24,7 +24,7 @@ type PaymentInfoResponse struct {
 	Id int `json:"id"`
 	UserId int `json:"user_id"`
 	User entity.Users `json:"user"`
-	AuctionItemId float64 `json:"auction_item_id"`
+	AuctionItemId int `json:"auction_item_id"`
 	Status string `json:"payment_status"`
 	// PaymentStatus entity.PaymentStatus `json:"payment_status"`
 	Amount float64 `json:"amount"`
