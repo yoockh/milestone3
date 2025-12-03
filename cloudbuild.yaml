@@ -12,12 +12,12 @@ steps:
     - '--image'
     - 'gcr.io/$PROJECT_ID/yadera:$SHORT_SHA'
     - '--region'
-    - 'asia-southeast1'
+    - 'asia-southeast2'
     - '--platform'
     - 'managed'
     - '--allow-unauthenticated'
     - '--set-env-vars'
-    - 'BUCKET_PUBLIC_URL=yadera-article-assets,BUCKET_PRIVATE_URL=yadera-private-files,PORT=8080'
+    - 'BUCKET_PUBLIC=yadera-article-assets,BUCKET_PRIVATE=yadera-private-files,PORT=8080'
 
 images:
 - 'gcr.io/$PROJECT_ID/yadera:$SHORT_SHA'
