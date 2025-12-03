@@ -24,6 +24,8 @@ func NewAuctionItemService(r repository.AuctionItemRepository, aiRepo repository
 	return &itemsService{repo: r, logger: logger, ai: aiRepo}
 }
 
+const DefaultStartingPrice = 10000
+
 func (s *itemsService) Create(itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, error) {
 	item, err := dto.AuctionItemRequest(*itemDTO)
 	if err != nil {
@@ -38,14 +40,11 @@ func (s *itemsService) Create(itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, 
 
 	estimatedPrice, err := s.ai.EstimateStartingPrice(estimationReq)
 	if err != nil {
-		// AI estimation failed — log and fallback to provided starting price or sensible default
 		s.logger.Warn("EstimateStartingPrice failed, falling back to provided/default price", "error", err)
-		// prefer client-provided StartingPrice if present
 		if itemDTO.StartingPrice > 0 {
 			estimatedPrice = itemDTO.StartingPrice
 		} else {
-			// sensible default to avoid blocking creation
-			estimatedPrice = 100
+			estimatedPrice = DefaultStartingPrice
 		}
 	}
 
@@ -65,20 +64,18 @@ func (s *itemsService) Create(itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, 
 }
 
 func (s *itemsService) GetAll() ([]dto.AuctionItemDTO, error) {
-	{
-		items, err := s.repo.GetAll()
-		if err != nil {
-			s.logger.Error("Failed to get all auction items", "error", err)
-			return nil, ErrAuctionNotFound
-		}
-
-		var itemDTOs []dto.AuctionItemDTO
-		for _, item := range items {
-			itemDTOs = append(itemDTOs, dto.AuctionItemResponse(item))
-		}
-
-		return itemDTOs, nil
+	items, err := s.repo.GetAll()
+	if err != nil {
+		s.logger.Error("Failed to get all auction items", "error", err)
+		return nil, ErrAuctionNotFound
 	}
+
+	var itemDTOs []dto.AuctionItemDTO
+	for _, item := range items {
+		itemDTOs = append(itemDTOs, dto.AuctionItemResponse(item))
+	}
+
+	return itemDTOs, nil
 }
 
 func (s *itemsService) GetByID(id int64) (dto.AuctionItemDTO, error) {

@@ -144,29 +144,3 @@ func (h *BidController) GetHighestBid(c echo.Context) error {
 
 	return utils.SuccessResponse(c, "highest bid retrieved successfully", resp)
 }
-
-func (h *BidController) SyncHighestBid(c echo.Context) error {
-	if !isAdminFromToken(c) {
-		return utils.ForbiddenResponse(c, "only admin can sync bids")
-	}
-
-	sessionIDStr := c.Param("sessionID")
-	itemIDStr := c.Param("itemID")
-
-	sessionID, err := strconv.ParseInt(sessionIDStr, 10, 64)
-	if err != nil {
-		return utils.BadRequestResponse(c, "invalid sessionID")
-	}
-
-	itemID, err := strconv.ParseInt(itemIDStr, 10, 64)
-	if err != nil {
-		return utils.BadRequestResponse(c, "invalid itemID")
-	}
-
-	err = h.svc.SyncHighestBid(sessionID, itemID)
-	if err != nil {
-		return utils.InternalServerErrorResponse(c, err.Error())
-	}
-
-	return utils.SuccessResponse(c, "highest bid synced to database", nil)
-}

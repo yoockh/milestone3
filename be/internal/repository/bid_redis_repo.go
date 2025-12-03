@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -12,12 +13,13 @@ import (
 type BidRedisRepository interface {
 	SetHighestBid(sessionID, itemID int64, amount float64, userID int64, sessionEndTime time.Time) error
 	GetHighestBid(sessionID, itemID int64) (float64, int64, error)
-	GetBidHistory(sessionID, itemID int64, limit int64) ([]BidEntry, error)
-	GetSessionEndTime(sessionID int64) (time.Time, error)
+	GetEndTime(key string) (time.Time, error)
 
 	ScanKeys(pattern string) ([]string, error)
 	GetBidByKey(key string) (BidEntry, error)
 	DeleteKey(key string) error
+
+	CheckDuplicateBid(userID, itemID int64, amount float64, ttl time.Duration) error
 }
 
 type bidRedisRepository struct {
@@ -73,6 +75,10 @@ func (r *bidRedisRepository) GetHighestBid(sessionID, itemID int64) (float64, in
 		return 0, 0, err
 	}
 
+	if len(data) == 0 {
+		return 0, 0, nil
+	}
+
 	amount, err := strconv.ParseFloat(data["highest_amount"], 64)
 	if err != nil {
 		amount = 0
@@ -85,40 +91,27 @@ func (r *bidRedisRepository) GetHighestBid(sessionID, itemID int64) (float64, in
 	return amount, bidder, nil
 }
 
-func (r *bidRedisRepository) GetBidHistory(sessionID, itemID int64, limit int64) ([]BidEntry, error) {
-	historyKey := fmt.Sprintf("auction:%d:item:%d:history", sessionID, itemID)
-
-	results, err := r.client.ZRevRangeWithScores(r.ctx, historyKey, 0, limit-1).Result()
+func (r *bidRedisRepository) GetEndTime(key string) (time.Time, error) {
+	data, err := r.client.HGetAll(r.ctx, key).Result()
 	if err != nil {
-		return nil, err
+		return time.Time{}, err
 	}
 
-	var history []BidEntry
-	for _, z := range results {
-		userID, _ := strconv.ParseInt(fmt.Sprintf("%v", z.Member), 10, 64)
-		history = append(history, BidEntry{
-			UserID: userID,
-			ItemID: itemID,
-			Amount: z.Score,
-		})
+	if len(data) == 0 {
+		return time.Time{}, errors.New("key not found")
 	}
 
-	return history, nil
-}
-
-func (r *bidRedisRepository) GetSessionEndTime(sessionID int64) (time.Time, error) {
-	{
-		key := "active_session:" + strconv.FormatInt(sessionID, 10)
-		data, err := r.client.HGetAll(r.ctx, key).Result()
-		if err != nil {
-			return time.Time{}, err
-		}
-		endTime, err := strconv.ParseInt(data["EndTime"], 10, 64)
-		if err != nil {
-			return time.Time{}, err
-		}
-		return time.Unix(endTime, 0), nil
+	endTimeStr, exists := data["end_time"]
+	if !exists {
+		return time.Time{}, errors.New("end_time field not found")
 	}
+
+	endTimeUnix, err := strconv.ParseInt(endTimeStr, 10, 64)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to parse end_time: %w", err)
+	}
+
+	return time.Unix(endTimeUnix, 0), nil
 }
 
 func (r *bidRedisRepository) ScanKeys(pattern string) ([]string, error) {
@@ -144,9 +137,16 @@ func (r *bidRedisRepository) GetBidByKey(key string) (BidEntry, error) {
 	if err != nil {
 		return BidEntry{}, err
 	}
+
 	amount, _ := strconv.ParseFloat(data["highest_amount"], 64)
 	userID, _ := strconv.ParseInt(data["highest_bidder"], 10, 64)
-	itemID, _ := strconv.ParseInt(data["auction_item"], 10, 64)
+
+	var sessionID, itemID int64
+	_, err = fmt.Sscanf(key, "active:auction:%d:item:%d", &sessionID, &itemID)
+	if err != nil {
+		return BidEntry{}, fmt.Errorf("invalid key format: %s", key)
+	}
+
 	return BidEntry{
 		UserID: userID,
 		ItemID: itemID,
@@ -156,4 +156,16 @@ func (r *bidRedisRepository) GetBidByKey(key string) (BidEntry, error) {
 
 func (r *bidRedisRepository) DeleteKey(key string) error {
 	return r.client.Del(r.ctx, key).Err()
+}
+
+func (r *bidRedisRepository) CheckDuplicateBid(userID, itemID int64, amount float64, ttl time.Duration) error {
+	key := fmt.Sprintf("bidder:%d:item:%d:amount:%.2f", userID, itemID, amount)
+	result, err := r.client.SetNX(r.ctx, key, "exists", ttl).Result()
+	if err != nil {
+		return err
+	}
+	if !result {
+		return errors.New("duplicate bid detected")
+	}
+	return nil
 }

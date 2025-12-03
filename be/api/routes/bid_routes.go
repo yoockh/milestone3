@@ -13,5 +13,4 @@ func (r *EchoRouter) RegisterBidRoutes(bidCtrl *controller.BidController) {
 
 	g.POST("/:sessionID/items/:itemID/bid", bidCtrl.PlaceBid)
 	g.GET("/:sessionID/items/:itemID/highest-bid", bidCtrl.GetHighestBid)
-	g.POST("/:sessionID/items/:itemID/sync", bidCtrl.SyncHighestBid)
 }

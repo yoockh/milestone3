@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"log/slog"
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/entity"
@@ -8,10 +9,14 @@ import (
 	"time"
 )
 
+var (
+	ErrSessionNotFound   = errors.New("auction session not found")
+	ErrExpiredSession    = errors.New("cannot modify expired auction session")
+)
+
 type sessionService struct {
-	repo      repository.AuctionSessionRepository
-	redisRepo repository.SessionRedisRepository
-	logger    *slog.Logger
+	repo   repository.AuctionSessionRepository
+	logger *slog.Logger
 }
 
 type AuctionSessionService interface {
@@ -22,12 +27,22 @@ type AuctionSessionService interface {
 	Delete(id int64) error
 }
 
-func NewAuctionSessionService(r repository.AuctionSessionRepository, rr repository.SessionRedisRepository, logger *slog.Logger) AuctionSessionService {
-	return &sessionService{repo: r, redisRepo: rr, logger: logger}
+func NewAuctionSessionService(r repository.AuctionSessionRepository, logger *slog.Logger) AuctionSessionService {
+	return &sessionService{repo: r, logger: logger}
 }
 
 func (s *sessionService) Create(d *dto.AuctionSessionDTO) (dto.AuctionSessionDTO, error) {
-	if d.Name == "" || d.EndTime.Before(d.StartTime) {
+	now := time.Now()
+
+	if d.Name == "" {
+		return dto.AuctionSessionDTO{}, ErrInvalidAuction
+	}
+
+	if d.EndTime.Before(d.StartTime) || d.EndTime.Equal(d.StartTime) {
+		return dto.AuctionSessionDTO{}, ErrInvalidAuction
+	}
+
+	if d.EndTime.Before(now) {
 		return dto.AuctionSessionDTO{}, ErrInvalidAuction
 	}
 
@@ -41,13 +56,6 @@ func (s *sessionService) Create(d *dto.AuctionSessionDTO) (dto.AuctionSessionDTO
 	if err != nil {
 		s.logger.Error("Failed to create auction session", "error", err)
 		return dto.AuctionSessionDTO{}, ErrInvalidAuction
-	}
-
-	now := time.Now()
-	if session.StartTime.Before(now) && session.EndTime.After(now) {
-		if err := s.redisRepo.SetActiveSession(session); err != nil {
-			s.logger.Error("Failed to cache active session in Redis", "error", err)
-		}
 	}
 
 	return dto.AuctionSessionResponse(session), nil
@@ -67,7 +75,7 @@ func (s *sessionService) GetAll() ([]dto.AuctionSessionDTO, error) {
 	sessions, err := s.repo.GetAll()
 	if err != nil {
 		s.logger.Error("Failed to get all auction sessions", "error", err)
-		return nil, ErrSessionNotFoundID
+		return nil, ErrSessionNotFound
 	}
 
 	var sessionDTOs []dto.AuctionSessionDTO
@@ -90,7 +98,7 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 		return dto.AuctionSessionDTO{}, ErrActiveSession
 	}
 	if session.EndTime.Before(now) {
-		return dto.AuctionSessionDTO{}, ErrInvalidDate
+		return dto.AuctionSessionDTO{}, ErrExpiredSession
 	}
 
 	if d.Name != "" {
@@ -104,7 +112,7 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 	}
 
 	if session.EndTime.Before(session.StartTime) {
-		return dto.AuctionSessionDTO{}, ErrInvalidDate
+		return dto.AuctionSessionDTO{}, ErrExpiredSession
 	}
 
 	// assign to DB
@@ -112,17 +120,6 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 	if err != nil {
 		s.logger.Error("Failed to update auction session", "error", err)
 		return dto.AuctionSessionDTO{}, ErrInvalidAuction
-	}
-
-	// update Redis if session is active
-	if session.StartTime.Before(now) && session.EndTime.After(now) {
-		if err := s.redisRepo.SetActiveSession(*session); err != nil {
-			s.logger.Error("Failed to update active session in Redis", "error", err)
-		}
-	} else {
-		if err := s.redisRepo.DeleteSession(session.ID); err != nil {
-			s.logger.Error("Failed to delete session from Redis", "error", err)
-		}
 	}
 
 	return dto.AuctionSessionResponse(*session), nil
@@ -142,17 +139,13 @@ func (s *sessionService) Delete(id int64) error {
 	}
 
 	if session.EndTime.Before(now) {
-		return ErrInvalidDate
+		return ErrExpiredSession
 	}
 
 	err = s.repo.Delete(id)
 	if err != nil {
 		s.logger.Error("Failed to delete auction session", "error", err)
 		return ErrInvalidAuction
-	}
-
-	if err := s.redisRepo.DeleteSession(session.ID); err != nil {
-		s.logger.Error("Failed to delete session from Redis", "error", err)
 	}
 
 	return nil

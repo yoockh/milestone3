@@ -21,11 +21,6 @@ type AuctionItemDTO struct {
 }
 
 func AuctionItemRequest(d AuctionItemDTO) (entity.AuctionItem, error) {
-	// photos := make([]entity.DonationPhoto, 0, len(d.Photos))
-	// for _, u := range d.Photos {
-	// 	photos = append(photos, entity.DonationPhoto{URL: u, DonationID: uint(d.DonationID)})
-	// }
-
 	status := d.Status
 	if status == "" {
 		status = "scheduled"
@@ -41,16 +36,10 @@ func AuctionItemRequest(d AuctionItemDTO) (entity.AuctionItem, error) {
 		Status:        status,
 		StartingPrice: d.StartingPrice,
 		CreatedAt:     d.CreatedAt,
-		// Photos:        photos,
 	}, nil
 }
 
 func AuctionItemResponse(m entity.AuctionItem) AuctionItemDTO {
-	// photos := make([]string, 0, len(m.Photos))
-	// for _, p := range m.Photos {
-	// 	photos = append(photos, p.URL)
-	// }
-
 	return AuctionItemDTO{
 		ID:            m.ID,
 		DonationID:    m.DonationID,
@@ -60,7 +49,6 @@ func AuctionItemResponse(m entity.AuctionItem) AuctionItemDTO {
 		Category:      m.Category,
 		Status:        m.Status,
 		StartingPrice: m.StartingPrice,
-		// Photos:        photos,
 		CreatedAt: m.CreatedAt,
 	}
 }
@@ -75,7 +63,7 @@ func AuctionItemResponses(ms []entity.AuctionItem) []AuctionItemDTO {
 
 type AuctionSessionDTO struct {
 	Name      string    `json:"name,omitempty" validate:"required"`
-	ID        int       `json:"id,omitempty"`
+	ID        int64     `json:"id,omitempty"`
 	StartTime time.Time `json:"start_time,omitempty" validate:"required"`
 	EndTime   time.Time `json:"end_time,omitempty" validate:"required"`
 }
@@ -83,7 +71,7 @@ type AuctionSessionDTO struct {
 func AuctionSessionResponse(m entity.AuctionSession) AuctionSessionDTO {
 	return AuctionSessionDTO{
 		Name:      m.Name,
-		ID:        int(m.ID),
+		ID:        m.ID,
 		StartTime: m.StartTime,
 		EndTime:   m.EndTime,
 	}

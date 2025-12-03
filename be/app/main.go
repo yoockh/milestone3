@@ -13,6 +13,7 @@ import (
 	"milestone3/be/api/routes"
 	"milestone3/be/config"
 	"milestone3/be/internal/controller"
+	scheduler "milestone3/be/internal/cron"
 	"milestone3/be/internal/repository"
 	"milestone3/be/internal/service"
 )
@@ -65,7 +66,6 @@ func main() {
 
 	redisClient := config.ConnectRedis(ctx)
 	redisRepo := repository.NewBidRedisRepository(redisClient, ctx)
-	auctionRedisRepo := repository.NewSessionRedisRepository(redisClient, ctx)
 
 	aiRepo := repository.NewAIRepository(logger, os.Getenv("GEMINI_API_KEY"))
 
@@ -76,8 +76,12 @@ func main() {
 	finalDonationSvc := service.NewFinalDonationService(finalDonationRepo)
 	paymentSvc := service.NewPaymentService(paymentRepo)
 	auctionSvc := service.NewAuctionItemService(auctionItemRepo, aiRepo, logger)
-	auctionSessionSvc := service.NewAuctionSessionService(auctionSessionRepo, auctionRedisRepo, logger)
-	bidSvc := service.NewBidService(redisRepo, bidRepo, auctionItemRepo, logger)
+	auctionSessionSvc := service.NewAuctionSessionService(auctionSessionRepo, logger)
+	bidSvc := service.NewBidService(redisRepo, bidRepo, auctionItemRepo, auctionSessionRepo, logger)
+
+	// bid scheduler
+	bidScheduler := scheduler.NewBidScheduler(bidSvc, logger)
+	bidScheduler.Start()
 
 	// controllers
 	userCtrl := controller.NewUserController(validate, userSvc)

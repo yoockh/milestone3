@@ -23,5 +23,4 @@ type AuctionItem struct {
 	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
 
 	Session *AuctionSession `gorm:"foreignKey:SessionID" json:"session,omitempty"`
-	// Photos  []DonationPhoto `gorm:"foreignKey:AuctionItemID;constraint:OnDelete:CASCADE" json:"photos,omitempty"`
 }

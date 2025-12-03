@@ -115,7 +115,6 @@ func (h *AuctionController) GetAuctionItemByID(c echo.Context) error {
 }
 
 func (h *AuctionController) UpdateAuctionItem(c echo.Context) error {
-	// Check if user is admin
 	if !isAdminFromTokenItem(c) {
 		return utils.ForbiddenResponse(c, "only admin can update auction items")
 	}

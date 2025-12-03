@@ -90,8 +90,14 @@ func (r *aiRepo) callGeminiModel(req PriceEstimationRequest, model string) (floa
 		},
 	}
 
-	body, _ := json.Marshal(payload)
-	reqHTTP, _ := http.NewRequest(http.MethodPost, url, strings.NewReader(string(body)))
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return 0, err
+	}
+	reqHTTP, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(body)))
+	if err != nil {
+		return 0, err
+	}
 	reqHTTP.Header.Set("x-goog-api-key", r.GeminiAPIKey)
 	reqHTTP.Header.Set("Content-Type", "application/json")
 
@@ -101,7 +107,10 @@ func (r *aiRepo) callGeminiModel(req PriceEstimationRequest, model string) (floa
 	}
 	defer resp.Body.Close()
 
-	respBytes, _ := io.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
 	var data geminiRespBody
 	if err := json.Unmarshal(respBytes, &data); err != nil {
 		return 0, err
