@@ -12,5 +12,5 @@ func (r *EchoRouter) RegisterAdminRoutes(adminCtrl *controller.AdminController) 
 
 	//admin endpoint
 	adminRoutes.GET("/dashboard", adminCtrl.AdminDashboard)
-	// adminRoutes.GET("/report", adminCtrl.AdminReport)
+	// adminRoutes.GET("/reports", adminCtrl.AdminReport)
 }
