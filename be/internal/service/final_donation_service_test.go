@@ -16,7 +16,8 @@ func TestFinalDonationService_GetAllFinalDonations(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockFinalDonationRepository(ctrl)
-	finalDonationService := NewFinalDonationService(mockRepo)
+	mockDonationRepo := mocks.NewMockDonationRepo(ctrl)
+	finalDonationService := NewFinalDonationService(mockRepo, mockDonationRepo)
 
 	tests := []struct {
 		name    string
@@ -46,9 +47,9 @@ func TestFinalDonationService_GetAllFinalDonations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			
+
 			result, total, err := finalDonationService.GetAllFinalDonations(1, 10)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Nil(t, result)
@@ -61,13 +62,13 @@ func TestFinalDonationService_GetAllFinalDonations(t *testing.T) {
 		})
 	}
 }
-
 func TestFinalDonationService_GetAllFinalDonationsByUserID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockFinalDonationRepository(ctrl)
-	finalDonationService := NewFinalDonationService(mockRepo)
+	mockDonationRepo := mocks.NewMockDonationRepo(ctrl)
+	finalDonationService := NewFinalDonationService(mockRepo, mockDonationRepo)
 
 	tests := []struct {
 		name    string
@@ -107,9 +108,9 @@ func TestFinalDonationService_GetAllFinalDonationsByUserID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			
+
 			result, err := finalDonationService.GetAllFinalDonationsByUserID(tt.userID)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Nil(t, result)
