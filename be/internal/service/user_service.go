@@ -74,32 +74,22 @@ func (us *UserServ) GetUserById(id int) (res dto.UserResponse, err error) {
 }
 
 func (us *UserServ) GetUserByEmail(email, password string) (accessToken string, err error) {
-	log.Printf("[DEBUG] Login attempt for email: %s", email)
-	
 	user, err := us.userRepo.GetByEmail(email)
 	if err != nil {
-		log.Printf("[ERROR] Failed get user by email: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", ErrInvalidCredential
 		}
 		return "", err
 	}
 
-	log.Printf("[DEBUG] User found: ID=%d, Email=%s, Role=%s", user.Id, user.Email, user.Role)
-	log.Printf("[DEBUG] Stored hash length: %d, Input password length: %d", len(user.Password), len(password))
-
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		log.Printf("[ERROR] Password comparison failed: %v", err)
 		return "", ErrInvalidCredential
 	}
 
-	log.Printf("[DEBUG] Password verified, generating token...")
 	token, err := utils.GenerateJwtToken(email, user.Role, user.Id)
 	if err != nil {
-		log.Printf("[ERROR] Failed generate jwt token: %v", err)
 		return "", err
 	}
 
-	log.Printf("[DEBUG] Login successful for user ID: %d", user.Id)
 	return token, nil
 }

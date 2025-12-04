@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type DonationController struct {
@@ -132,11 +133,21 @@ func (h *DonationController) CreateDonation(c echo.Context) error {
 	}
 	payload.UserID = userID
 
+	// Set default status if not provided
+	if payload.Status == "" {
+		payload.Status = entity.StatusPending
+	}
+
 	if err := h.validator.Struct(payload); err != nil {
 		return utils.BadRequestResponse(c, err.Error())
 	}
 
 	if err := h.svc.CreateDonation(payload); err != nil {
+		logrus.WithError(err).WithFields(logrus.Fields{
+			"user_id": userID,
+			"title":   payload.Title,
+			"photos":  len(payload.Photos),
+		}).Error("Failed to create donation in database")
 		return utils.InternalServerErrorResponse(c, "failed creating donation")
 	}
 

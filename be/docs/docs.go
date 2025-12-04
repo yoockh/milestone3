@@ -2132,7 +2132,6 @@ const docTemplate = `{
                 "category",
                 "condition",
                 "description",
-                "status",
                 "title",
                 "user_id"
             ],

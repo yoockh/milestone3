@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
 type UserService interface {
@@ -71,25 +70,19 @@ func (uc *UserController) CreateUser(c echo.Context) error {
 func (uc *UserController) LoginUser(c echo.Context) error {
 	req := new(dto.UserLoginRequest)
 	if err := c.Bind(req); err != nil {
-		logrus.WithError(err).Error("[CONTROLLER] Failed to bind request")
 		return utils.BadRequestResponse(c, err.Error())
 	}
-	logrus.Infof("[CONTROLLER] Login request received for email: %s", req.Email)
-	
 	if err := uc.validate.Struct(req); err != nil {
-		logrus.WithError(err).Error("[CONTROLLER] Validation failed")
 		return utils.BadRequestResponse(c, err.Error())
 	}
 
 	resp, err := uc.userService.GetUserByEmail(req.Email, req.Password)
 	if err != nil {
-		logrus.WithError(err).Errorf("[CONTROLLER] Login failed for email: %s", req.Email)
 		if errors.Is(err, service.ErrInvalidCredential) {
 			return utils.UnauthorizedResponse(c, "invalid email or password")
 		}
 		return utils.InternalServerErrorResponse(c, "internal server error")
 	}
 
-	logrus.Infof("[CONTROLLER] Login successful for email: %s", req.Email)
 	return utils.SuccessResponse(c, "success login", resp)
 }

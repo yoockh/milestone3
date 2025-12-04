@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type ArticleController struct {
@@ -196,6 +197,10 @@ func (h *ArticleController) CreateArticle(c echo.Context) error {
 
 	// send to service
 	if err := h.svc.CreateArticle(payload); err != nil {
+		logrus.WithError(err).WithFields(logrus.Fields{
+			"title": payload.Title,
+			"week":  payload.Week,
+		}).Error("Failed to create article in database")
 		return utils.InternalServerErrorResponse(c, "failed creating article")
 	}
 

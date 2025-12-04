@@ -9,6 +9,7 @@ import (
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/repository"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -37,9 +38,17 @@ func NewDonationService(repo repository.DonationRepo, privateStore repository.GC
 func (s *donationService) CreateDonation(donationDTO dto.DonationDTO) error {
 	donation, err := dto.DonationRequest(donationDTO)
 	if err != nil {
+		logrus.WithError(err).Error("Failed to convert DTO to entity")
 		return err
 	}
-	return s.repo.CreateDonation(donation)
+	if err := s.repo.CreateDonation(donation); err != nil {
+		logrus.WithError(err).WithFields(logrus.Fields{
+			"user_id": donation.UserID,
+			"title":   donation.Title,
+		}).Error("Failed to insert donation to database")
+		return err
+	}
+	return nil
 }
 
 func (s *donationService) GetAllDonations(userID uint, isAdmin bool, page, limit int) ([]dto.DonationDTO, int64, error) {

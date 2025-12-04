@@ -96,7 +96,6 @@ definitions:
     - category
     - condition
     - description
-    - status
     - title
     - user_id
     type: object

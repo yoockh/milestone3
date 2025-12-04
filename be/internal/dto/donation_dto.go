@@ -13,8 +13,8 @@ type DonationDTO struct {
 	Description string                `json:"description,omitempty" validate:"required"`
 	Category    string                `json:"category,omitempty" validate:"required"`
 	Condition   string                `json:"condition,omitempty" validate:"required"`
-	Status      entity.StatusDonation `json:"status,omitempty" validate:"required"`
-	Photos      []string              `json:"photos,omitempty" validate:"dive,url"`
+	Status      entity.StatusDonation `json:"status,omitempty" validate:"omitempty"`
+	Photos      []string              `json:"photos,omitempty" validate:"omitempty,dive,url"`
 	CreatedAt   time.Time             `json:"created_at,omitempty"`
 }
 
