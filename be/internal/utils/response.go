@@ -4,7 +4,15 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
+
+var logger *logrus.Logger
+
+func init() {
+	logger = logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+}
 
 // Response represents the standard API response structure
 type Response struct {
@@ -26,12 +34,26 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-// sendResponse is a helper function to send JSON responses
-// code   : HTTP status code (200, 400, 404, etc.)
-// status : "success" or "error"
-// message: message to send
-// data   : payload data, can be nil if not needed
+// sendResponse is a helper function to send JSON responses with logging
 func sendResponse(c echo.Context, code int, status string, message string, data interface{}) error {
+	fields := logrus.Fields{
+		"method": c.Request().Method,
+		"path":   c.Request().URL.Path,
+		"status": code,
+	}
+
+	if userID, ok := GetUserID(c); ok {
+		fields["user_id"] = userID
+	}
+
+	if code >= 500 {
+		logger.WithFields(fields).Error(message)
+	} else if code >= 400 {
+		logger.WithFields(fields).Warn(message)
+	} else if code >= 200 && code < 300 {
+		logger.WithFields(fields).Info(message)
+	}
+
 	resp := map[string]interface{}{
 		"status":  status,
 		"message": message,
