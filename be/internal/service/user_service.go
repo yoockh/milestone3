@@ -10,6 +10,7 @@ import (
 	"milestone3/be/internal/entity"
 	"milestone3/be/internal/utils"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -90,7 +91,7 @@ func (us *UserServ) GetUserByEmail(email, password string) (accessToken string, 
 
 	token, err := utils.GenerateJwtToken(email, user.Role, user.Id)
 	if err != nil {
-		log.Println("failed to generate jwt token")
+		logrus.WithError(err).Error("failed generate jwt token")
 		return "", err
 	}
 
