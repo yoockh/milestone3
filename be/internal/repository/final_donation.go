@@ -58,7 +58,22 @@ func (r *finalDonationRepository) GetAllFinalDonationsByUserID(userID int) ([]en
 }
 
 func (r *finalDonationRepository) UpdateNotes(donationID uint, notes string) error {
-	return r.db.Model(&entity.FinalDonation{}).Where("donation_id = ?", donationID).Update("notes", notes).Error
+	// Check if exists, if not create first
+	var finalDonation entity.FinalDonation
+	err := r.db.Where("donation_id = ?", donationID).First(&finalDonation).Error
+	if err == gorm.ErrRecordNotFound {
+		// Create new entry
+		finalDonation = entity.FinalDonation{
+			DonationID: donationID,
+			Notes:      notes,
+		}
+		return r.db.Create(&finalDonation).Error
+	}
+	if err != nil {
+		return err
+	}
+	// Update existing
+	return r.db.Model(&finalDonation).Update("notes", notes).Error
 }
 
 func (r *finalDonationRepository) GetByDonationID(donationID uint) (entity.FinalDonation, error) {

@@ -13,10 +13,14 @@ type FinalDonationService interface {
 
 type finalDonationService struct {
 	finalDonationRepo repository.FinalDonationRepository
+	donationRepo      repository.DonationRepo
 }
 
-func NewFinalDonationService(finalDonationRepo repository.FinalDonationRepository) FinalDonationService {
-	return &finalDonationService{finalDonationRepo: finalDonationRepo}
+func NewFinalDonationService(finalDonationRepo repository.FinalDonationRepository, donationRepo repository.DonationRepo) FinalDonationService {
+	return &finalDonationService{
+		finalDonationRepo: finalDonationRepo,
+		donationRepo:      donationRepo,
+	}
 }
 
 func (s *finalDonationService) GetAllFinalDonations(page, limit int) ([]entity.FinalDonation, int64, error) {
@@ -28,14 +32,19 @@ func (s *finalDonationService) GetAllFinalDonationsByUserID(userID int) ([]entit
 }
 
 func (s *finalDonationService) UpdateNotes(donationID uint, userID uint, notes string) error {
-	// Get final donation to check ownership via donation
-	finalDonation, err := s.finalDonationRepo.GetByDonationID(donationID)
+	// Get donation to check ownership and status
+	donation, err := s.donationRepo.GetDonationByID(donationID)
 	if err != nil {
 		return err
 	}
 
-	// Check if user owns the donation
-	if finalDonation.Donation.UserID != userID {
+	// Check ownership
+	if donation.UserID != userID {
+		return ErrForbidden
+	}
+
+	// Check if status is verified_for_donation
+	if donation.Status != entity.StatusVerifiedForDonation {
 		return ErrForbidden
 	}
 

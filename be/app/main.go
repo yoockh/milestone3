@@ -96,7 +96,7 @@ func main() {
 	userSvc := service.NewUserService(userRepo)
 	articleSvc := service.NewArticleService(articleRepo)
 	donationSvc := service.NewDonationService(donationRepo, gcpPrivateRepo)
-	finalDonationSvc := service.NewFinalDonationService(finalDonationRepo)
+	finalDonationSvc := service.NewFinalDonationService(finalDonationRepo, donationRepo)
 	paymentSvc := service.NewPaymentService(paymentRepo)
 	adminSvc := service.NewAdminService(adminRepo)
 	bidSvc := service.NewBidService(redisRepo, bidRepo, auctionItemRepo, logger)
