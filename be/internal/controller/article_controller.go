@@ -29,7 +29,7 @@ func NewArticleController(s service.ArticleService, storage repository.GCPStorag
 // @Tags Your Donate Rise API - Articles
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.SuccessResponseData "Articles retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "articles fetched"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /articles [get]
 func (h *ArticleController) GetAllArticles(c echo.Context) error {
@@ -47,7 +47,7 @@ func (h *ArticleController) GetAllArticles(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Article ID"
-// @Success 200 {object} utils.SuccessResponseData "Article retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "article fetched"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid article ID"
 // @Failure 404 {object} utils.ErrorResponse "Article not found"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -80,7 +80,7 @@ func (h *ArticleController) GetArticleByID(c echo.Context) error {
 // @Param content formData string true "Article content"
 // @Param week formData int true "Week number"
 // @Param image formData file false "Article image (optional)"
-// @Success 201 {object} utils.SuccessResponseData "Article created successfully"
+// @Success 201 {object} utils.SuccessResponseData "article created"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid payload or image"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"
@@ -152,7 +152,7 @@ func (h *ArticleController) CreateArticle(c echo.Context) error {
 // @Security BearerAuth
 // @Param id path int true "Article ID"
 // @Param article body dto.ArticleDTO true "Updated article data"
-// @Success 200 {object} utils.SuccessResponseData "Article updated successfully"
+// @Success 200 {object} utils.SuccessResponseData "article updated"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid ID or payload"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"

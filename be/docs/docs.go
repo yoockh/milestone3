@@ -44,7 +44,7 @@ const docTemplate = `{
                 "summary": "Get admin dashboard analytics",
                 "responses": {
                     "200": {
-                        "description": "Dashboard data retrieved successfully",
+                        "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -85,7 +85,7 @@ const docTemplate = `{
                 "summary": "Get all transparency articles",
                 "responses": {
                     "200": {
-                        "description": "Articles retrieved successfully",
+                        "description": "articles fetched",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -147,7 +147,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Article created successfully",
+                        "description": "article created",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -203,7 +203,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Article retrieved successfully",
+                        "description": "article fetched",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -265,7 +265,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Article updated successfully",
+                        "description": "article updated",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -380,7 +380,7 @@ const docTemplate = `{
                 "summary": "Get all auction items",
                 "responses": {
                     "200": {
-                        "description": "Auction items retrieved successfully",
+                        "description": "auction items retrieved successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -423,7 +423,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Auction item created successfully",
+                        "description": "auction item created successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -479,7 +479,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Auction item retrieved successfully",
+                        "description": "auction item retrieved successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -541,7 +541,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Auction item updated successfully",
+                        "description": "auction item updated successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -606,7 +606,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Auction item deleted successfully",
+                        "description": "auction item deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -659,7 +659,7 @@ const docTemplate = `{
                 "summary": "Get all auction sessions",
                 "responses": {
                     "200": {
-                        "description": "Auction sessions retrieved successfully",
+                        "description": "auction sessions retrieved successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -708,7 +708,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Auction session created successfully",
+                        "description": "auction session created successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -764,7 +764,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Auction session retrieved successfully",
+                        "description": "auction session retrieved successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -826,7 +826,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Auction session updated successfully",
+                        "description": "auction session updated successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -891,7 +891,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Auction session deleted successfully",
+                        "description": "auction session deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -974,7 +974,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Bid placed successfully",
+                        "description": "bid placed successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1043,7 +1043,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Highest bid retrieved successfully",
+                        "description": "highest bid retrieved successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1105,7 +1105,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Highest bid synced to database",
+                        "description": "highest bid synced to database",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1163,7 +1163,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Login successful, returns access token",
+                        "description": "success login",
                         "schema": {
                             "allOf": [
                                 {
@@ -1227,7 +1227,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "User created successfully",
+                        "description": "user created",
                         "schema": {
                             "allOf": [
                                 {
@@ -1279,7 +1279,7 @@ const docTemplate = `{
                 "summary": "Get all donations",
                 "responses": {
                     "200": {
-                        "description": "Donations retrieved successfully",
+                        "description": "donations fetched",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1354,7 +1354,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Donation created successfully",
+                        "description": "donation created successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1395,7 +1395,7 @@ const docTemplate = `{
                 "summary": "Get all final donations",
                 "responses": {
                     "200": {
-                        "description": "Final donations retrieved successfully",
+                        "description": "Final donations fetched successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1433,7 +1433,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Final donations retrieved successfully",
+                        "description": "Final donations fetched successfully",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1476,7 +1476,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Donation retrieved successfully",
+                        "description": "donation fetched",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1550,7 +1550,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Donation updated successfully",
+                        "description": "donation updated",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1686,7 +1686,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Donation patched successfully",
+                        "description": "donation patched",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1739,7 +1739,7 @@ const docTemplate = `{
                 "summary": "Get all payments",
                 "responses": {
                     "200": {
-                        "description": "Payments retrieved successfully",
+                        "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1791,7 +1791,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Payment created successfully",
+                        "description": "create",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1841,7 +1841,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Payment status retrieved successfully",
+                        "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }
@@ -1879,7 +1879,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Payment retrieved successfully",
+                        "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/utils.SuccessResponseData"
                         }

@@ -11,5 +11,5 @@ func (r *EchoRouter) RegisterUserRoutes(userCtrl *controller.UserController) {
 
 	// auth endpoint
 	userRoutes.POST("/register", userCtrl.CreateUser)
-	userRoutes.GET("/login", userCtrl.LoginUser)
+	userRoutes.POST("/login", userCtrl.LoginUser)
 }

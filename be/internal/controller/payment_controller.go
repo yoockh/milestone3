@@ -35,7 +35,7 @@ func NewPaymentController(validate *validator.Validate, ps PaymentService) *Paym
 // @Security BearerAuth
 // @Param auctionId path int true "Auction Item ID"
 // @Param payment body dto.PaymentRequest true "Payment details"
-// @Success 201 {object} utils.SuccessResponseData "Payment created successfully"
+// @Success 201 {object} utils.SuccessResponseData "create"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid payload or auction ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -75,7 +75,7 @@ func (pc *PaymentController) CreatePayment(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Success 200 {object} utils.SuccessResponseData "Payment status retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "ok"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /payments/status/{id} [get]
 func (pc *PaymentController) CheckPaymentStatusMidtrans(c echo.Context) error {
@@ -95,7 +95,7 @@ func (pc *PaymentController) CheckPaymentStatusMidtrans(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Payment ID"
-// @Success 200 {object} utils.SuccessResponseData "Payment retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "ok"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid payment ID"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /payments/{id} [get]
@@ -120,7 +120,7 @@ func (pc *PaymentController) GetPaymentById(c echo.Context) error {
 // @Tags Your Donate Rise API - Payments
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.SuccessResponseData "Payments retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "ok"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /payments [get]
 func (pc *PaymentController) GetAllPayment(c echo.Context) error {

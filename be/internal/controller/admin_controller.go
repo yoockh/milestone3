@@ -28,7 +28,7 @@ func NewAdminController(as AdminService) *AdminController {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} utils.SuccessResponseData "Dashboard data retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "ok"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"

@@ -65,7 +65,7 @@ func isAdminFromToken(c echo.Context) bool {
 // @Param sessionID path int true "Auction Session ID"
 // @Param itemID path int true "Auction Item ID"
 // @Param bid body dto.BidDTO true "Bid amount"
-// @Success 200 {object} utils.SuccessResponseData "Bid placed successfully"
+// @Success 200 {object} utils.SuccessResponseData "bid placed successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid parameters or bid too low"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 404 {object} utils.ErrorResponse "Auction session or item not found"
@@ -136,7 +136,7 @@ func (h *BidController) PlaceBid(c echo.Context) error {
 // @Produce json
 // @Param sessionID path int true "Auction Session ID"
 // @Param itemID path int true "Auction Item ID"
-// @Success 200 {object} utils.SuccessResponseData "Highest bid retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "highest bid retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid session or item ID"
 // @Failure 404 {object} utils.ErrorResponse "Auction not found"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -184,7 +184,7 @@ func (h *BidController) GetHighestBid(c echo.Context) error {
 // @Security BearerAuth
 // @Param sessionID path int true "Auction Session ID"
 // @Param itemID path int true "Auction Item ID"
-// @Success 200 {object} utils.SuccessResponseData "Highest bid synced to database"
+// @Success 200 {object} utils.SuccessResponseData "highest bid synced to database"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid session or item ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"

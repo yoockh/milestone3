@@ -63,7 +63,7 @@ func isAdminFromTokenItem(c echo.Context) bool {
 // @Produce json
 // @Security BearerAuth
 // @Param auctionItem body dto.AuctionItemDTO true "Auction item data"
-// @Success 201 {object} utils.SuccessResponseData "Auction item created successfully"
+// @Success 201 {object} utils.SuccessResponseData "auction item created successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid payload"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"
@@ -105,7 +105,7 @@ func (h *AuctionController) CreateAuctionItem(c echo.Context) error {
 // @Tags Your Donate Rise API - Auction Items
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.SuccessResponseData "Auction items retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "auction items retrieved successfully"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /auction/items [get]
 func (h *AuctionController) GetAllAuctionItems(c echo.Context) error {
@@ -123,7 +123,7 @@ func (h *AuctionController) GetAllAuctionItems(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Auction Item ID"
-// @Success 200 {object} utils.SuccessResponseData "Auction item retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "auction item retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid auction item ID"
 // @Failure 404 {object} utils.ErrorResponse "Auction item not found"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -158,7 +158,7 @@ func (h *AuctionController) GetAuctionItemByID(c echo.Context) error {
 // @Security BearerAuth
 // @Param id path int true "Auction Item ID"
 // @Param auctionItem body dto.AuctionItemDTO true "Updated auction item data"
-// @Success 200 {object} utils.SuccessResponseData "Auction item updated successfully"
+// @Success 200 {object} utils.SuccessResponseData "auction item updated successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid ID or payload"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"
@@ -209,7 +209,7 @@ func (h *AuctionController) UpdateAuctionItem(c echo.Context) error {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Auction Item ID"
-// @Success 200 {object} utils.SuccessResponseData "Auction item deleted successfully"
+// @Success 200 {object} utils.SuccessResponseData "auction item deleted successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid ID or cannot delete item"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin access required"

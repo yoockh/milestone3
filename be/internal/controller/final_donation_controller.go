@@ -22,7 +22,7 @@ func NewFinalDonationController(finalDonationService service.FinalDonationServic
 // @Tags Your Donate Rise API - Final Donations
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.SuccessResponseData "Final donations retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "Final donations fetched successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Failed to fetch final donations"
 // @Router /donations/final [get]
 func (h *FinalDonationController) GetAllFinalDonations(c echo.Context) error {
@@ -39,7 +39,7 @@ func (h *FinalDonationController) GetAllFinalDonations(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param user_id path int true "User ID"
-// @Success 200 {object} utils.SuccessResponseData "Final donations retrieved successfully"
+// @Success 200 {object} utils.SuccessResponseData "Final donations fetched successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid user ID or failed to fetch"
 // @Router /donations/final/user/{user_id} [get]
 func (h *FinalDonationController) GetAllFinalDonationsByUserID(c echo.Context) error {
