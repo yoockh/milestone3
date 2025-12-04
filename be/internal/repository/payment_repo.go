@@ -78,6 +78,7 @@ func (pr *PaymentRepo) CreateMidtrans(payment entity.Payment, orderId string) (r
 
 func (pr *PaymentRepo) CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error) {
 	var payment entity.Payment
+	var auction entity.AuctionItem
 	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
 	c := coreapi.Client{}
 	c.New(serverKey, midtrans.Sandbox)	
@@ -97,8 +98,14 @@ func (pr *PaymentRepo) CheckPaymentStatusMidtrans(orderId string) (res dto.Check
 		pr.db.Model(&payment).WithContext(pr.ctx).Where("order_id = ?", orderId).Update("status", "paid")
 	case "cancel", "expire":
 		// if cancel/expire update status on auction_items to scheduled 
-		pr.db.Model(&payment).WithContext(context.Background()).
-		Joins("JOIN auction_items ai on payments.auction_item_id = ai.id").Update("ai.status", "scheduled")
+		// pr.db.Model(&payment).WithContext(context.Background()).
+		// Joins("JOIN auction_items ai on payments.auction_item_id = ai.id").Update("ai.status", "scheduled")
+		pr.db.Model(&auction).
+		Where("id = (?)",
+        pr.db.Model(&payment).
+            Select("auction_item_id").
+            Where("order_id = ?", orderId),
+		).Update("status", "scheduled")
 
 		// if cancel/expire update status on payment to failed
 		pr.db.Model(&payment).WithContext(pr.ctx).Where("order_id = ?", orderId).Update("status", "failed")
