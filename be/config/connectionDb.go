@@ -23,8 +23,8 @@ func ConnectionDb() *gorm.DB {
 		PreferSimpleProtocol: true,
 	}
 
-	// config stmt to false
 	db, err := gorm.Open(postgres.New(pgConfig), &gorm.Config{
+		//set stmt cache disabled
 		PrepareStmt: false,
 	})
 	if err != nil {
