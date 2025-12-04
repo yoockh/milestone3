@@ -70,7 +70,8 @@ CREATE TABLE payments (
     auction_item_id INT REFERENCES auction_items(id),
     amount INT,
     status payment_status NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    order_id VARCHAR(200)
 );
 
 CREATE TABLE final_donations (

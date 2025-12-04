@@ -44,7 +44,7 @@ func (as *AdminServ) AdminDashboard() (resp dto.AdminDashboardResponse, err erro
 
 	auction, err := as.adminRepo.CountAuction(); 
 	if err != nil {
-		log.Printf("error count payment %s", &err)
+		log.Printf("error count payment %s", err)
 		return dto.AdminDashboardResponse{}, err
 	}
 

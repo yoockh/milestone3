@@ -6,6 +6,7 @@ type Payment struct {
 	User Users `gorm:"foreignKey:UserId;references:Id"`
 	AuctionItemId int
 	Status string
+	OrderId string
 	// PaymentStatus PaymentStatus `gorm:"foreignKey:StatusId;references:Id"`
 	Amount float64
 }

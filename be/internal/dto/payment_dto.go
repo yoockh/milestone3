@@ -12,6 +12,7 @@ type PaymentResponse struct {
 	PaymentLinkUrl string `json:"payment_link_url"`
 	TransactionId string `json:"transaction_id"`
 	ExpiryTime string `json:"expiry_time"`
+	OrderId string `json:"order_id"`
 }
 
 type CheckPaymentStatusResponse struct {
