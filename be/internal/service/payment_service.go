@@ -10,9 +10,9 @@ import (
 )
 
 type PaymentRepository interface {
-	Create(payment *entity.Payment) (error)
+	Create(payment *entity.Payment, orderId string) (error)
 	CreateMidtrans(payment entity.Payment, orderId string) (res dto.PaymentResponse, err error)
-	CheckPaymentStatusMidtrans(transactionId string) (res dto.CheckPaymentStatusResponse, err error)
+	CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error)
 	GetById(id int) (payment entity.Payment, err error)
 	GetAll() (payment []entity.Payment, err error)
 }
@@ -25,7 +25,7 @@ func NewPaymentService(pr PaymentRepository) *PaymentServ {
 	return &PaymentServ{paymentRepo: pr}
 }
 
-func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int) (res dto.PaymentResponse, err error) {
+func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int, auctionItemId int) (res dto.PaymentResponse, err error) {
 	//random id for order id
 	uuid := uuid.New()
 	orderId := fmt.Sprintf("YDR-%d", uuid.ID())
@@ -34,22 +34,22 @@ func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int) (res dt
 		Amount: req.Amount,
 		UserId: userId,
 		//hard code for now 
-		AuctionItemId: 1,
+		AuctionItemId: auctionItemId,
 	}
 
-	if err := ps.paymentRepo.Create(&payment); err != nil {
+	
+	log.Println("disini nih")
+	resp, _ := ps.paymentRepo.CreateMidtrans(payment, orderId)
+	
+	if err := ps.paymentRepo.Create(&payment, resp.OrderId); err != nil {
 		log.Printf("error create payment %s", err)
 		return dto.PaymentResponse{}, err
 	}
-
-	log.Println("disini nih")
-	resp, _ := ps.paymentRepo.CreateMidtrans(payment, orderId)
-
 	return resp, nil
 }
 
-func (ps *PaymentServ) CheckPaymentStatusMidtrans(transactionId string) (res dto.CheckPaymentStatusResponse, err error) {
-	resp, _:= ps.paymentRepo.CheckPaymentStatusMidtrans(transactionId)
+func (ps *PaymentServ) CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error) {
+	resp, _:= ps.paymentRepo.CheckPaymentStatusMidtrans(orderId)
 
 	return resp, nil
 }
@@ -77,7 +77,7 @@ func (ps *PaymentServ) GetPaymentById(id int) (res dto.PaymentInfoResponse, err 
 func (ps *PaymentServ) GetAllPayment() (res []dto.PaymentInfoResponse, err error) {
 	resp, err := ps.paymentRepo.GetAll()
 	if err != nil {
-		log.Println("failed get all payment info %s", err)
+		log.Printf("failed get all payment info %s", err)
 		return []dto.PaymentInfoResponse{}, err
 	}
 

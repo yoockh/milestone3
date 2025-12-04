@@ -76,6 +76,7 @@ func (us *UserServ) GetUserByEmail(email, password string) (accessToken string, 
 		return "", err
 	}		
 
+	// WIP auth/validation
 	//validation??
 	//mailjet validation kalo ada 
 

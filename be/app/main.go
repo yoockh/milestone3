@@ -60,13 +60,12 @@ func main() {
 	donationRepo := repository.NewDonationRepo(db)
 	finalDonationRepo := repository.NewFinalDonationRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db, ctx)
+	adminRepo := repository.NewAdminRepository(db, ctx)
 	auctionItemRepo := repository.NewAuctionItemRepository(db)
 	auctionSessionRepo := repository.NewAuctionSessionRepository(db)
 	bidRepo := repository.NewBidRepository(db)
-
 	redisClient := config.ConnectRedis(ctx)
 	redisRepo := repository.NewBidRedisRepository(redisClient, ctx)
-
 	aiRepo := repository.NewAIRepository(logger, os.Getenv("GEMINI_API_KEY"))
 
 	// services
@@ -75,6 +74,7 @@ func main() {
 	donationSvc := service.NewDonationService(donationRepo, gcpPrivateRepo)
 	finalDonationSvc := service.NewFinalDonationService(finalDonationRepo)
 	paymentSvc := service.NewPaymentService(paymentRepo)
+	adminSvc := service.NewAdminService(adminRepo)
 	auctionSvc := service.NewAuctionItemService(auctionItemRepo, aiRepo, logger)
 	auctionSessionSvc := service.NewAuctionSessionService(auctionSessionRepo, logger)
 	bidSvc := service.NewBidService(redisRepo, bidRepo, auctionItemRepo, auctionSessionRepo, logger)
@@ -85,6 +85,7 @@ func main() {
 
 	// controllers
 	userCtrl := controller.NewUserController(validate, userSvc)
+	adminCtrl := controller.NewAdminController(adminSvc)
 	articleCtrl := controller.NewArticleController(articleSvc, gcpPublicRepo)
 
 	var donationCtrl *controller.DonationController
@@ -108,13 +109,14 @@ func main() {
 	router.RegisterDonationRoutes(donationCtrl)
 	router.RegisterFinalDonationRoutes(finalDonationCtrl)
 	router.RegisterPaymentRoutes(paymentCtrl)
+	router.RegisterAdminRoutes(adminCtrl)
 	router.RegisterAuctionRoutes(auctionCtrl)
 	router.RegisterAuctionSessionRoutes(auctionSessionCtrl)
 	router.RegisterBidRoutes(bidCtrl)
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8000"
+		port = "8080"
 	}
 	if err := e.Start(":" + port); err != nil {
 		log.Fatalf("failed to start server: %v", err)

@@ -20,7 +20,8 @@ func NewPaymentRepository(db *gorm.DB, ctx context.Context) *PaymentRepo {
 	return &PaymentRepo{db: db, ctx: ctx}
 }
 
-func (pr *PaymentRepo) Create(payment *entity.Payment) (error) {
+func (pr *PaymentRepo) Create(payment *entity.Payment, orderId string) (error) {
+	payment.OrderId = orderId
 	if err := pr.db.WithContext(pr.ctx).Omit("Status").Preload("User").Create(payment).Error; err != nil {
 		return err
 	}
@@ -70,25 +71,33 @@ func (pr *PaymentRepo) CreateMidtrans(payment entity.Payment, orderId string) (r
 		PaymentLinkUrl: paymentURL,
 		TransactionId: coreApiResp.TransactionID,
 		ExpiryTime: coreApiResp.ExpiryTime,
+		OrderId: coreApiResp.OrderID,
 	}
 	return resp, nil
 }
 
-func (pr *PaymentRepo) CheckPaymentStatusMidtrans(transactionId string) (res dto.CheckPaymentStatusResponse, err error) {
+func (pr *PaymentRepo) CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error) {
+	var payment entity.Payment
 	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
 	c := coreapi.Client{}
 	c.New(serverKey, midtrans.Sandbox)	
 
-	resp, _ := c.CheckTransaction(transactionId)
-	// if err != nil {
-	// 	return dto.CheckPaymentStatusResponse{}, err
-	// }
+	resp, err := c.CheckTransaction(orderId)
+	if err != nil {
+		return dto.CheckPaymentStatusResponse{}, err
+	}
 
 	respon := dto.CheckPaymentStatusResponse{
 		OrderId: resp.OrderID,
 		TransactionId: resp.TransactionID,
 		PaymentStatus: resp.TransactionStatus,
 	}
-
+	switch resp.TransactionStatus {
+	case "settlement":
+		pr.db.Model(&payment).WithContext(pr.ctx).Where("order_id = ?", orderId).Update("status", "paid")
+	case "cancel", "expire":
+		pr.db.Model(&payment).WithContext(pr.ctx).Where("order_id = ?", orderId).Update("status", "failed")
+	}
+	
 	return respon, nil
 }

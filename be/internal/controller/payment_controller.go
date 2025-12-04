@@ -11,8 +11,8 @@ import (
 )
 
 type PaymentService interface {
-	CreatePayment(req dto.PaymentRequest, userId int) (res dto.PaymentResponse, err error)
-	CheckPaymentStatusMidtrans(transactionId string) (res dto.CheckPaymentStatusResponse, err error)
+	CreatePayment(req dto.PaymentRequest, userId int, auctionItemId int) (res dto.PaymentResponse, err error)
+	CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error)
 	GetPaymentById(id int) (res dto.PaymentInfoResponse, err error)
 	GetAllPayment() (res []dto.PaymentInfoResponse, err error)
 }
@@ -40,7 +40,13 @@ func (pc *PaymentController) CreatePayment(c echo.Context) error {
 		return utils.BadRequestResponse(c, err.Error())
 	}
 
-	resp, err := pc.paymentService.CreatePayment(*req, userId)
+	auctionIdStr := c.Param("auctionId")
+	auctionId, err := strconv.Atoi(auctionIdStr)
+	if err != nil {
+		return utils.BadRequestResponse(c, err.Error())
+	}
+
+	resp, err := pc.paymentService.CreatePayment(*req, userId, auctionId)
 	if err != nil {
 		return utils.InternalServerErrorResponse(c, "internal server error")
 	}
@@ -49,8 +55,8 @@ func (pc *PaymentController) CreatePayment(c echo.Context) error {
 }
 
 func (pc *PaymentController) CheckPaymentStatusMidtrans(c echo.Context) error {
-	transactionId := c.Param("id")
-	resp, err := pc.paymentService.CheckPaymentStatusMidtrans(transactionId)
+	orderId := c.Param("id")
+	resp, err := pc.paymentService.CheckPaymentStatusMidtrans(orderId)
 	if err != nil {
 		return utils.InternalServerErrorResponse(c, "internal server error")
 	}
