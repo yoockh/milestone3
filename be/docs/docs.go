@@ -1777,7 +1777,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Partially update a donation by ID (owner or admin only)",
+                "description": "Update donation status for approval (admin only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -1787,7 +1787,7 @@ const docTemplate = `{
                 "tags": [
                     "Your Donate Rise API - Donations"
                 ],
-                "summary": "Partially update donation",
+                "summary": "Approve/update donation status",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1797,12 +1797,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Partial donation data",
-                        "name": "donation",
+                        "description": "Approval status",
+                        "name": "approval",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.DonationDTO"
+                            "$ref": "#/definitions/dto.DonationApprovalDTO"
                         }
                     }
                 ],
@@ -1826,7 +1826,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "Forbidden - Access denied",
+                        "description": "Forbidden - Admin only",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -2123,6 +2123,22 @@ const docTemplate = `{
             "properties": {
                 "amount": {
                     "type": "number"
+                }
+            }
+        },
+        "dto.DonationApprovalDTO": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "verified_for_auction",
+                        "verified_for_donation"
+                    ]
                 }
             }
         },

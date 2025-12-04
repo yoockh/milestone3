@@ -18,6 +18,10 @@ type DonationDTO struct {
 	CreatedAt   time.Time             `json:"created_at,omitempty"`
 }
 
+type DonationApprovalDTO struct {
+	Status entity.StatusDonation `json:"status" validate:"required,oneof=pending verified_for_auction verified_for_donation"`
+}
+
 // DonationRequest converts DTO to entity.Donation
 func DonationRequest(d DonationDTO) (entity.Donation, error) {
 	photos := make([]entity.DonationPhoto, 0, len(d.Photos))

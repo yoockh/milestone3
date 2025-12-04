@@ -70,6 +70,17 @@ definitions:
     required:
     - amount
     type: object
+  dto.DonationApprovalDTO:
+    properties:
+      status:
+        enum:
+        - pending
+        - verified_for_auction
+        - verified_for_donation
+        type: string
+    required:
+    - status
+    type: object
   dto.DonationDTO:
     properties:
       category:
@@ -1163,19 +1174,19 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Partially update a donation by ID (owner or admin only)
+      description: Update donation status for approval (admin only)
       parameters:
       - description: Donation ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Partial donation data
+      - description: Approval status
         in: body
-        name: donation
+        name: approval
         required: true
         schema:
-          $ref: '#/definitions/dto.DonationDTO'
+          $ref: '#/definitions/dto.DonationApprovalDTO'
       produces:
       - application/json
       responses:
@@ -1192,7 +1203,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
         "403":
-          description: Forbidden - Access denied
+          description: Forbidden - Admin only
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
         "404":
@@ -1205,7 +1216,7 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Partially update donation
+      summary: Approve/update donation status
       tags:
       - Your Donate Rise API - Donations
     put:

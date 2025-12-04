@@ -336,41 +336,46 @@ func (h *DonationController) DeleteDonation(c echo.Context) error {
 }
 
 // PatchDonation godoc
-// @Summary Partially update donation
-// @Description Partially update a donation by ID (owner or admin only)
+// @Summary Approve/update donation status
+// @Description Update donation status for approval (admin only)
 // @Tags Your Donate Rise API - Donations
 // @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Donation ID"
-// @Param donation body dto.DonationDTO true "Partial donation data"
+// @Param approval body dto.DonationApprovalDTO true "Approval status"
 // @Success 200 {object} utils.SuccessResponseData "donation patched"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid ID or payload"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
-// @Failure 403 {object} utils.ErrorResponse "Forbidden - Access denied"
+// @Failure 403 {object} utils.ErrorResponse "Forbidden - Admin only"
 // @Failure 404 {object} utils.ErrorResponse "Donation not found"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /donations/{id} [patch]
 func (h *DonationController) PatchDonation(c echo.Context) error {
+	if !utils.IsAdmin(c) {
+		return utils.ForbiddenResponse(c, "admin only")
+	}
+
 	idParam := c.Param("id")
 	id64, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
 		return utils.BadRequestResponse(c, "invalid id")
 	}
 
-	var payload dto.DonationDTO
-	if err := c.Bind(&payload); err != nil {
+	var approvalPayload dto.DonationApprovalDTO
+	if err := c.Bind(&approvalPayload); err != nil {
 		return utils.BadRequestResponse(c, "invalid payload")
 	}
-	payload.ID = uint(id64)
 
-	userID, ok := utils.GetUserID(c)
-	if !ok {
-		return utils.UnauthorizedResponse(c, "unauthenticated")
+	if err := h.validator.Struct(approvalPayload); err != nil {
+		return utils.BadRequestResponse(c, err.Error())
 	}
-	isAdm := utils.IsAdmin(c)
 
-	if err := h.svc.PatchDonation(payload, userID, isAdm); err != nil {
+	var payload dto.DonationDTO
+	payload.ID = uint(id64)
+	payload.Status = approvalPayload.Status
+
+	if err := h.svc.PatchDonation(payload, 0, true); err != nil {
 		if errors.Is(err, service.ErrDonationNotFound) {
 			return utils.NotFoundResponse(c, "donation not found")
 		}
