@@ -25,7 +25,7 @@ func NewPaymentService(pr PaymentRepository) *PaymentServ {
 	return &PaymentServ{paymentRepo: pr}
 }
 
-func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int) (res dto.PaymentResponse, err error) {
+func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int, auctionItemId int) (res dto.PaymentResponse, err error) {
 	//random id for order id
 	uuid := uuid.New()
 	orderId := fmt.Sprintf("YDR-%d", uuid.ID())
@@ -34,7 +34,7 @@ func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int) (res dt
 		Amount: req.Amount,
 		UserId: userId,
 		//hard code for now 
-		AuctionItemId: 1,
+		AuctionItemId: auctionItemId,
 	}
 
 	

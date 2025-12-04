@@ -82,20 +82,22 @@ func (pr *PaymentRepo) CheckPaymentStatusMidtrans(orderId string) (res dto.Check
 	c := coreapi.Client{}
 	c.New(serverKey, midtrans.Sandbox)	
 
-	resp, _ := c.CheckTransaction(orderId)
-	// if err != nil {
-	// 	return dto.CheckPaymentStatusResponse{}, err
-	// }
+	resp, err := c.CheckTransaction(orderId)
+	if err != nil {
+		return dto.CheckPaymentStatusResponse{}, err
+	}
 
 	respon := dto.CheckPaymentStatusResponse{
 		OrderId: resp.OrderID,
 		TransactionId: resp.TransactionID,
 		PaymentStatus: resp.TransactionStatus,
 	}
-	if resp.TransactionStatus == "settlement" {
+	switch resp.TransactionStatus {
+	case "settlement":
 		pr.db.Model(&payment).WithContext(pr.ctx).Where("order_id = ?", orderId).Update("status", "paid")
-	} else if resp.TransactionStatus == "cancel" || resp.TransactionStatus == "expire" {
+	case "cancel", "expire":
 		pr.db.Model(&payment).WithContext(pr.ctx).Where("order_id = ?", orderId).Update("status", "failed")
 	}
+	
 	return respon, nil
 }
