@@ -18,19 +18,41 @@ func NewFinalDonationController(finalDonationService service.FinalDonationServic
 
 // GetAllFinalDonations godoc
 // @Summary Get all final donations
-// @Description Retrieve all items that were directly donated to institutions
+// @Description Retrieve all items that were directly donated to institutions with pagination
 // @Tags Your Donate Rise API - Final Donations
 // @Accept json
 // @Produce json
+// @Param page query int false "Page number (default: 1)"
+// @Param limit query int false "Items per page (default: 10, max: 100)"
 // @Success 200 {object} utils.SuccessResponseData "Final donations fetched successfully"
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Failed to fetch final donations"
 // @Router /donations/final [get]
 func (h *FinalDonationController) GetAllFinalDonations(c echo.Context) error {
-	finalDonations, err := h.svc.GetAllFinalDonations()
+	// Parse pagination params
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	finalDonations, total, err := h.svc.GetAllFinalDonations(page, limit)
 	if err != nil {
 		return utils.BadRequestResponse(c, "Failed to fetch final donations")
 	}
-	return utils.SuccessResponse(c, "Final donations fetched successfully", finalDonations)
+
+	response := map[string]interface{}{
+		"final_donations": finalDonations,
+		"page":            page,
+		"limit":           limit,
+		"total":           total,
+	}
+	return utils.SuccessResponse(c, "Final donations fetched successfully", response)
 }
 // GetAllFinalDonationsByUserID godoc
 // @Summary Get final donations by user ID

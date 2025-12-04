@@ -7,7 +7,7 @@ import (
 )
 
 type ArticleRepo interface {
-	GetAllArticles() ([]entity.Article, error)
+	GetAllArticles(page, limit int) ([]entity.Article, int64, error)
 	GetArticleByID(id uint) (entity.Article, error)
 	// Admin functionalities
 	CreateArticle(article entity.Article) error
@@ -27,10 +27,19 @@ func (r *articleRepo) CreateArticle(article entity.Article) error {
 	return r.db.Create(&article).Error
 }
 
-func (r *articleRepo) GetAllArticles() ([]entity.Article, error) {
+func (r *articleRepo) GetAllArticles(page, limit int) ([]entity.Article, int64, error) {
 	var articles []entity.Article
-	err := r.db.Find(&articles).Error
-	return articles, err
+	var total int64
+
+	// Count total records
+	if err := r.db.Model(&entity.Article{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated records
+	offset := (page - 1) * limit
+	err := r.db.Offset(offset).Limit(limit).Order("created_at DESC").Find(&articles).Error
+	return articles, total, err
 }
 
 func (r *articleRepo) GetArticleByID(id uint) (entity.Article, error) {

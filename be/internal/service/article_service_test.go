@@ -84,14 +84,14 @@ func TestArticleService_GetAllArticles(t *testing.T) {
 					{ID: 1, Title: "Article 1", Content: "Content 1"},
 					{ID: 2, Title: "Article 2", Content: "Content 2"},
 				}
-				mockRepo.EXPECT().GetAllArticles().Return(articles, nil)
+				mockRepo.EXPECT().GetAllArticles(1, 10).Return(articles, int64(2), nil)
 			},
 			wantErr: false,
 		},
 		{
 			name: "repository error",
 			setup: func() {
-				mockRepo.EXPECT().GetAllArticles().Return(nil, errors.New("db error"))
+				mockRepo.EXPECT().GetAllArticles(1, 10).Return(nil, int64(0), errors.New("db error"))
 			},
 			wantErr: true,
 		},
@@ -101,7 +101,7 @@ func TestArticleService_GetAllArticles(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
 			
-			result, err := articleService.GetAllArticles()
+			result, total, err := articleService.GetAllArticles(1, 10)
 			
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -109,6 +109,7 @@ func TestArticleService_GetAllArticles(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Len(t, result, 2)
+				assert.Equal(t, int64(2), total)
 			}
 		})
 	}

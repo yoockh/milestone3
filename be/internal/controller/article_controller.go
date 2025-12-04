@@ -25,19 +25,41 @@ func NewArticleController(s service.ArticleService, storage repository.GCPStorag
 
 // GetAllArticles godoc
 // @Summary Get all transparency articles
-// @Description Retrieve all published weekly transparency articles
+// @Description Retrieve all published weekly transparency articles with pagination
 // @Tags Your Donate Rise API - Articles
 // @Accept json
 // @Produce json
+// @Param page query int false "Page number (default: 1)"
+// @Param limit query int false "Items per page (default: 10, max: 100)"
 // @Success 200 {object} utils.SuccessResponseData "articles fetched"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /articles [get]
 func (h *ArticleController) GetAllArticles(c echo.Context) error {
-	articles, err := h.svc.GetAllArticles()
+	// Parse pagination params
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	articles, total, err := h.svc.GetAllArticles(page, limit)
 	if err != nil {
 		return utils.InternalServerErrorResponse(c, "failed fetching articles")
 	}
-	return utils.SuccessResponse(c, "articles fetched", articles)
+
+	response := map[string]interface{}{
+		"articles": articles,
+		"page":     page,
+		"limit":    limit,
+		"total":    total,
+	}
+	return utils.SuccessResponse(c, "articles fetched", response)
 }
 
 // GetArticleByID godoc
@@ -102,6 +124,17 @@ func (h *ArticleController) CreateArticle(c echo.Context) error {
 
 		form := c.Request().MultipartForm
 
+		// Validate required fields
+		if len(form.Value["title"]) == 0 {
+			return utils.BadRequestResponse(c, "title is required")
+		}
+		if len(form.Value["content"]) == 0 {
+			return utils.BadRequestResponse(c, "content is required")
+		}
+		if len(form.Value["week"]) == 0 {
+			return utils.BadRequestResponse(c, "week is required")
+		}
+
 		payload.Title = form.Value["title"][0]
 		payload.Content = form.Value["content"][0]
 		week, _ := strconv.Atoi(form.Value["week"][0])
@@ -111,13 +144,29 @@ func (h *ArticleController) CreateArticle(c echo.Context) error {
 		if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
 			fh := fhs[0]
 
+			// Validate file size (max 5MB)
+			if fh.Size > 5*1024*1024 {
+				return utils.BadRequestResponse(c, "image size exceeds 5MB limit")
+			}
+
+			// Validate file type (only images)
+			contentType := fh.Header.Get("Content-Type")
+			if !strings.HasPrefix(contentType, "image/") {
+				return utils.BadRequestResponse(c, "only image files are allowed")
+			}
+
 			file, err := fh.Open()
 			if err != nil {
 				return utils.BadRequestResponse(c, "failed open image")
 			}
 			defer file.Close()
 
-			objName := fmt.Sprintf("articles/%d_%s", time.Now().UnixNano(), fh.Filename)
+			// Sanitize filename
+			safeFilename := strings.ReplaceAll(fh.Filename, "..", "")
+			safeFilename = strings.ReplaceAll(safeFilename, "/", "")
+			safeFilename = strings.ReplaceAll(safeFilename, "\\", "")
+
+			objName := fmt.Sprintf("articles/%d_%s", time.Now().UnixNano(), safeFilename)
 
 			//  upload to public storage
 			url, err := h.storagePublic.UploadFile(c.Request().Context(), file, objName)

@@ -215,7 +215,16 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve all published weekly transparency articles
+      description: Retrieve all published weekly transparency articles with pagination
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10, max: 100)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -984,7 +993,17 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all donations (admin sees all, users see only their own)
+      description: Get all donations (admin sees all, users see only their own) with
+        pagination
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10, max: 100)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1242,7 +1261,17 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve all items that were directly donated to institutions
+      description: Retrieve all items that were directly donated to institutions with
+        pagination
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10, max: 100)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:

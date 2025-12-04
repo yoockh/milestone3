@@ -11,7 +11,7 @@ import (
 
 type ArticleService interface {
 	CreateArticle(articleDTO dto.ArticleDTO) error
-	GetAllArticles() ([]dto.ArticleDTO, error)
+	GetAllArticles(page, limit int) ([]dto.ArticleDTO, int64, error)
 	GetArticleByID(id uint) (dto.ArticleDTO, error)
 	UpdateArticle(articleDTO dto.ArticleDTO) error
 	DeleteArticle(id uint) error
@@ -33,12 +33,12 @@ func (s *articleService) CreateArticle(articleDTO dto.ArticleDTO) error {
 	return s.repo.CreateArticle(article)
 }
 
-func (s *articleService) GetAllArticles() ([]dto.ArticleDTO, error) {
-	articles, err := s.repo.GetAllArticles()
+func (s *articleService) GetAllArticles(page, limit int) ([]dto.ArticleDTO, int64, error) {
+	articles, total, err := s.repo.GetAllArticles(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return dto.ArticleResponses(articles), nil
+	return dto.ArticleResponses(articles), total, nil
 }
 
 func (s *articleService) GetArticleByID(id uint) (dto.ArticleDTO, error) {

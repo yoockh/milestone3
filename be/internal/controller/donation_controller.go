@@ -54,6 +54,20 @@ func (h *DonationController) CreateDonation(c echo.Context) error {
 		}
 		form := c.Request().MultipartForm
 
+		// Validate required fields exist
+		if len(form.Value["title"]) == 0 {
+			return utils.BadRequestResponse(c, "title is required")
+		}
+		if len(form.Value["description"]) == 0 {
+			return utils.BadRequestResponse(c, "description is required")
+		}
+		if len(form.Value["category"]) == 0 {
+			return utils.BadRequestResponse(c, "category is required")
+		}
+		if len(form.Value["condition"]) == 0 {
+			return utils.BadRequestResponse(c, "condition is required")
+		}
+
 		payload.Title = form.Value["title"][0]
 		payload.Description = form.Value["description"][0]
 		payload.Category = form.Value["category"][0]
@@ -66,12 +80,28 @@ func (h *DonationController) CreateDonation(c echo.Context) error {
 		// FILE HANDLING PRIVATE ONLY
 		if fhs, ok := form.File["photos"]; ok {
 			for _, fh := range fhs {
+				// Validate file size (max 10MB per file)
+				if fh.Size > 10*1024*1024 {
+					return utils.BadRequestResponse(c, "file size exceeds 10MB limit")
+				}
+
+				// Validate file type (only images)
+				contentType := fh.Header.Get("Content-Type")
+				if !strings.HasPrefix(contentType, "image/") {
+					return utils.BadRequestResponse(c, "only image files are allowed")
+				}
+
 				f, err := fh.Open()
 				if err != nil {
 					return utils.BadRequestResponse(c, "cannot open file")
 				}
 
-				objName := fmt.Sprintf("donations/private/%d_%s", time.Now().UnixNano(), fh.Filename)
+				// Sanitize filename to prevent path traversal
+				safeFilename := strings.ReplaceAll(fh.Filename, "..", "")
+				safeFilename = strings.ReplaceAll(safeFilename, "/", "")
+				safeFilename = strings.ReplaceAll(safeFilename, "\\", "")
+
+				objName := fmt.Sprintf("donations/private/%d_%s", time.Now().UnixNano(), safeFilename)
 				objectName, err := h.privateStore.UploadFile(c.Request().Context(), f, objName)
 				_ = f.Close()
 
@@ -105,31 +135,52 @@ func (h *DonationController) CreateDonation(c echo.Context) error {
 
 // GetAllDonations godoc
 // @Summary Get all donations
-// @Description Get all donations (admin sees all, users see only their own)
+// @Description Get all donations (admin sees all, users see only their own) with pagination
 // @Tags Your Donate Rise API - Donations
 // @Accept json
 // @Produce json
 // @Security BearerAuth
+// @Param page query int false "Page number (default: 1)"
+// @Param limit query int false "Items per page (default: 10, max: 100)"
 // @Success 200 {object} utils.SuccessResponseData "donations fetched"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /donations [get]
 func (h *DonationController) GetAllDonations(c echo.Context) error {
-	userID, _ := utils.GetUserID(c) // unauthenticated => 0,false
+	userID, _ := utils.GetUserID(c)
 	isAdm := utils.IsAdmin(c)
 
-	// require auth for user-level listing; admin may call even without user_id set by middleware
 	if !isAdm {
 		if userID == 0 {
 			return utils.UnauthorizedResponse(c, "unauthenticated")
 		}
 	}
 
-	donations, err := h.svc.GetAllDonations(userID, isAdm)
+	// Parse pagination params
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	donations, total, err := h.svc.GetAllDonations(userID, isAdm, page, limit)
 	if err != nil {
 		return utils.InternalServerErrorResponse(c, "failed fetching donations")
 	}
-	return utils.SuccessResponse(c, "donations fetched", donations)
+
+	response := map[string]interface{}{
+		"donations": donations,
+		"page":      page,
+		"limit":     limit,
+		"total":     total,
+	}
+	return utils.SuccessResponse(c, "donations fetched", response)
 }
 
 // GetDonationByID godoc

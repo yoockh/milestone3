@@ -30,14 +30,14 @@ func TestFinalDonationService_GetAllFinalDonations(t *testing.T) {
 					{ID: 1, DonationID: 1, Notes: "Institution 1"},
 					{ID: 2, DonationID: 2, Notes: "Institution 2"},
 				}
-				mockRepo.EXPECT().GetAllFinalDonations().Return(donations, nil)
+				mockRepo.EXPECT().GetAllFinalDonations(1, 10).Return(donations, int64(2), nil)
 			},
 			wantErr: false,
 		},
 		{
 			name: "repository error",
 			setup: func() {
-				mockRepo.EXPECT().GetAllFinalDonations().Return(nil, errors.New("db error"))
+				mockRepo.EXPECT().GetAllFinalDonations(1, 10).Return(nil, int64(0), errors.New("db error"))
 			},
 			wantErr: true,
 		},
@@ -47,7 +47,7 @@ func TestFinalDonationService_GetAllFinalDonations(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
 			
-			result, err := finalDonationService.GetAllFinalDonations()
+			result, total, err := finalDonationService.GetAllFinalDonations(1, 10)
 			
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -55,6 +55,7 @@ func TestFinalDonationService_GetAllFinalDonations(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Len(t, result, 2)
+				assert.Equal(t, int64(2), total)
 				assert.Equal(t, "Institution 1", result[0].Notes)
 			}
 		})

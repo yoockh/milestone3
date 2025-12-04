@@ -58,18 +58,19 @@ func (mr *MockArticleRepoMockRecorder) DeleteArticle(id interface{}) *gomock.Cal
 }
 
 // GetAllArticles mocks base method.
-func (m *MockArticleRepo) GetAllArticles() ([]entity.Article, error) {
+func (m *MockArticleRepo) GetAllArticles(page, limit int) ([]entity.Article, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllArticles")
+	ret := m.ctrl.Call(m, "GetAllArticles", page, limit)
 	ret0, _ := ret[0].([]entity.Article)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetAllArticles indicates an expected call of GetAllArticles.
-func (mr *MockArticleRepoMockRecorder) GetAllArticles() *gomock.Call {
+func (mr *MockArticleRepoMockRecorder) GetAllArticles(page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllArticles", reflect.TypeOf((*MockArticleRepo)(nil).GetAllArticles))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllArticles", reflect.TypeOf((*MockArticleRepo)(nil).GetAllArticles), page, limit)
 }
 
 // GetArticleByID mocks base method.

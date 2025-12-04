@@ -7,7 +7,7 @@ import (
 )
 
 type FinalDonationRepository interface {
-	GetAllFinalDonations() ([]entity.FinalDonation, error)
+	GetAllFinalDonations(page, limit int) ([]entity.FinalDonation, int64, error)
 	GetAllFinalDonationsByUserID(userID int) ([]entity.FinalDonation, error)
 }
 
@@ -20,14 +20,28 @@ func NewFinalDonationRepository(db *gorm.DB) FinalDonationRepository {
 }
 
 // Return final_donations where the related donation has status = entity.StatusVerifiedForDonation
-func (r *finalDonationRepository) GetAllFinalDonations() ([]entity.FinalDonation, error) {
+func (r *finalDonationRepository) GetAllFinalDonations(page, limit int) ([]entity.FinalDonation, int64, error) {
 	var finalDonations []entity.FinalDonation
+	var total int64
+
+	// Count total records
+	if err := r.db.Model(&entity.FinalDonation{}).
+		Joins("JOIN donations d ON d.id = final_donations.donation_id").
+		Where("d.status = ?", entity.StatusVerifiedForDonation).
+		Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated records
+	offset := (page - 1) * limit
 	err := r.db.
 		Joins("JOIN donations d ON d.id = final_donations.donation_id").
 		Where("d.status = ?", entity.StatusVerifiedForDonation).
 		Preload("Donation").
+		Offset(offset).Limit(limit).
+		Order("final_donations.created_at DESC").
 		Find(&finalDonations).Error
-	return finalDonations, err
+	return finalDonations, total, err
 }
 
 // Return final_donations for a user by joining donations and filtering by donation.user_id

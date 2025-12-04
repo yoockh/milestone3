@@ -6,7 +6,7 @@ import (
 )
 
 type FinalDonationService interface {
-	GetAllFinalDonations() ([]entity.FinalDonation, error)
+	GetAllFinalDonations(page, limit int) ([]entity.FinalDonation, int64, error)
 	GetAllFinalDonationsByUserID(userID int) ([]entity.FinalDonation, error)
 }
 
@@ -18,8 +18,8 @@ func NewFinalDonationService(finalDonationRepo repository.FinalDonationRepositor
 	return &finalDonationService{finalDonationRepo: finalDonationRepo}
 }
 
-func (s *finalDonationService) GetAllFinalDonations() ([]entity.FinalDonation, error) {
-	return s.finalDonationRepo.GetAllFinalDonations()
+func (s *finalDonationService) GetAllFinalDonations(page, limit int) ([]entity.FinalDonation, int64, error) {
+	return s.finalDonationRepo.GetAllFinalDonations(page, limit)
 }
 
 func (s *finalDonationService) GetAllFinalDonationsByUserID(userID int) ([]entity.FinalDonation, error) {

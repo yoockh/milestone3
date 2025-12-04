@@ -61,18 +61,19 @@ func (mr *MockDonationRepoMockRecorder) DeleteDonation(id interface{}) *gomock.C
 }
 
 // GetAllDonations mocks base method.
-func (m *MockDonationRepo) GetAllDonations() ([]entity.Donation, error) {
+func (m *MockDonationRepo) GetAllDonations(page, limit int) ([]entity.Donation, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllDonations")
+	ret := m.ctrl.Call(m, "GetAllDonations", page, limit)
 	ret0, _ := ret[0].([]entity.Donation)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetAllDonations indicates an expected call of GetAllDonations.
-func (mr *MockDonationRepoMockRecorder) GetAllDonations() *gomock.Call {
+func (mr *MockDonationRepoMockRecorder) GetAllDonations(page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllDonations", reflect.TypeOf((*MockDonationRepo)(nil).GetAllDonations))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllDonations", reflect.TypeOf((*MockDonationRepo)(nil).GetAllDonations), page, limit)
 }
 
 // GetDonationByID mocks base method.
@@ -91,18 +92,19 @@ func (mr *MockDonationRepoMockRecorder) GetDonationByID(id interface{}) *gomock.
 }
 
 // GetDonationsByUserID mocks base method.
-func (m *MockDonationRepo) GetDonationsByUserID(userID uint) ([]entity.Donation, error) {
+func (m *MockDonationRepo) GetDonationsByUserID(userID uint, page, limit int) ([]entity.Donation, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDonationsByUserID", userID)
+	ret := m.ctrl.Call(m, "GetDonationsByUserID", userID, page, limit)
 	ret0, _ := ret[0].([]entity.Donation)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetDonationsByUserID indicates an expected call of GetDonationsByUserID.
-func (mr *MockDonationRepoMockRecorder) GetDonationsByUserID(userID interface{}) *gomock.Call {
+func (mr *MockDonationRepoMockRecorder) GetDonationsByUserID(userID, page, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDonationsByUserID", reflect.TypeOf((*MockDonationRepo)(nil).GetDonationsByUserID), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDonationsByUserID", reflect.TypeOf((*MockDonationRepo)(nil).GetDonationsByUserID), userID, page, limit)
 }
 
 // PatchDonation mocks base method.

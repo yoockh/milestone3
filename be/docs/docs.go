@@ -72,7 +72,7 @@ const docTemplate = `{
         },
         "/articles": {
             "get": {
-                "description": "Retrieve all published weekly transparency articles",
+                "description": "Retrieve all published weekly transparency articles with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -83,6 +83,20 @@ const docTemplate = `{
                     "Your Donate Rise API - Articles"
                 ],
                 "summary": "Get all transparency articles",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default: 10, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "articles fetched",
@@ -1266,7 +1280,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all donations (admin sees all, users see only their own)",
+                "description": "Get all donations (admin sees all, users see only their own) with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -1277,6 +1291,20 @@ const docTemplate = `{
                     "Your Donate Rise API - Donations"
                 ],
                 "summary": "Get all donations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default: 10, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "donations fetched",
@@ -1382,7 +1410,7 @@ const docTemplate = `{
         },
         "/donations/final": {
             "get": {
-                "description": "Retrieve all items that were directly donated to institutions",
+                "description": "Retrieve all items that were directly donated to institutions with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -1393,6 +1421,20 @@ const docTemplate = `{
                     "Your Donate Rise API - Final Donations"
                 ],
                 "summary": "Get all final donations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default: 10, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Final donations fetched successfully",

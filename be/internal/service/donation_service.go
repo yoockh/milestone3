@@ -14,7 +14,7 @@ import (
 
 type DonationService interface {
 	CreateDonation(donationDTO dto.DonationDTO) error
-	GetAllDonations(userID uint, isAdmin bool) ([]dto.DonationDTO, error)
+	GetAllDonations(userID uint, isAdmin bool, page, limit int) ([]dto.DonationDTO, int64, error)
 	GetDonationByID(id uint) (dto.DonationDTO, error)
 	UpdateDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error
 	DeleteDonation(id uint, userID uint, isAdmin bool) error
@@ -42,19 +42,19 @@ func (s *donationService) CreateDonation(donationDTO dto.DonationDTO) error {
 	return s.repo.CreateDonation(donation)
 }
 
-func (s *donationService) GetAllDonations(userID uint, isAdmin bool) ([]dto.DonationDTO, error) {
+func (s *donationService) GetAllDonations(userID uint, isAdmin bool, page, limit int) ([]dto.DonationDTO, int64, error) {
 	if isAdmin {
-		donations, err := s.repo.GetAllDonations()
+		donations, total, err := s.repo.GetAllDonations(page, limit)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
-		return dto.DonationResponses(donations), nil
+		return dto.DonationResponses(donations), total, nil
 	}
-	donations, err := s.repo.GetDonationsByUserID(userID)
+	donations, total, err := s.repo.GetDonationsByUserID(userID, page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return dto.DonationResponses(donations), nil
+	return dto.DonationResponses(donations), total, nil
 }
 
 func (s *donationService) GetDonationByID(id uint) (dto.DonationDTO, error) {

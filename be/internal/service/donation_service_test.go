@@ -56,9 +56,9 @@ func TestDonationService_CreateDonation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			
+
 			err := donationService.CreateDonation(tt.req)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -92,7 +92,7 @@ func TestDonationService_GetAllDonations(t *testing.T) {
 					{ID: 1, Title: "Donation 1", UserID: 1},
 					{ID: 2, Title: "Donation 2", UserID: 2},
 				}
-				mockRepo.EXPECT().GetAllDonations().Return(donations, nil)
+				mockRepo.EXPECT().GetAllDonations(1, 10).Return(donations, int64(2), nil)
 			},
 			wantErr: false,
 		},
@@ -104,7 +104,7 @@ func TestDonationService_GetAllDonations(t *testing.T) {
 				donations := []entity.Donation{
 					{ID: 1, Title: "Donation 1", UserID: 1},
 				}
-				mockRepo.EXPECT().GetDonationsByUserID(uint(1)).Return(donations, nil)
+				mockRepo.EXPECT().GetDonationsByUserID(uint(1), 1, 10).Return(donations, int64(1), nil)
 			},
 			wantErr: false,
 		},
@@ -113,7 +113,7 @@ func TestDonationService_GetAllDonations(t *testing.T) {
 			userID:  1,
 			isAdmin: true,
 			setup: func() {
-				mockRepo.EXPECT().GetAllDonations().Return(nil, errors.New("db error"))
+				mockRepo.EXPECT().GetAllDonations(1, 10).Return(nil, int64(0), errors.New("db error"))
 			},
 			wantErr: true,
 		},
@@ -122,15 +122,16 @@ func TestDonationService_GetAllDonations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			
-			result, err := donationService.GetAllDonations(tt.userID, tt.isAdmin)
-			
+
+			result, total, err := donationService.GetAllDonations(tt.userID, tt.isAdmin, 1, 10)
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Nil(t, result)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, result)
+				assert.Greater(t, total, int64(0))
 			}
 		})
 	}
@@ -172,9 +173,9 @@ func TestDonationService_GetDonationByID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			
+
 			result, err := donationService.GetDonationByID(tt.id)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Empty(t, result)
