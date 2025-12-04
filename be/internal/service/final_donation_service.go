@@ -35,17 +35,17 @@ func (s *finalDonationService) UpdateNotes(donationID uint, userID uint, notes s
 	// Get donation to check ownership and status
 	donation, err := s.donationRepo.GetDonationByID(donationID)
 	if err != nil {
-		return err
+		return ErrDonationNotFound
 	}
 
-	// Check ownership
+	// Check ownership first
 	if donation.UserID != userID {
 		return ErrForbidden
 	}
 
 	// Check if status is verified_for_donation
 	if donation.Status != entity.StatusVerifiedForDonation {
-		return ErrForbidden
+		return ErrDonationNotVerified
 	}
 
 	return s.finalDonationRepo.UpdateNotes(donationID, notes)

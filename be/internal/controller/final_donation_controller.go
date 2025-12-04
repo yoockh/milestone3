@@ -146,6 +146,7 @@ func (h *FinalDonationController) GetAllFinalDonationsByUserID(c echo.Context) e
 // @Failure 400 {object} utils.ErrorResponse "Bad request - Invalid input"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized - Invalid or missing token"
 // @Failure 403 {object} utils.ErrorResponse "Forbidden - Not your donation"
+// @Failure 404 {object} utils.ErrorResponse "Donation not found"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /donations/final/notes [post]
 func (h *FinalDonationController) UpdateNotes(c echo.Context) error {
@@ -164,8 +165,14 @@ func (h *FinalDonationController) UpdateNotes(c echo.Context) error {
 	}
 
 	if err := h.svc.UpdateNotes(req.DonationID, userID, req.Notes); err != nil {
+		if err == service.ErrDonationNotFound {
+			return utils.NotFoundResponse(c, "donation not found")
+		}
 		if err == service.ErrForbidden {
 			return utils.ForbiddenResponse(c, "not your donation")
+		}
+		if err == service.ErrDonationNotVerified {
+			return utils.BadRequestResponse(c, "donation not verified for donation")
 		}
 		return utils.InternalServerErrorResponse(c, "failed to update notes")
 	}
