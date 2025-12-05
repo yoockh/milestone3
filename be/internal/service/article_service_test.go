@@ -163,3 +163,97 @@ func TestArticleService_GetArticleByID(t *testing.T) {
 		})
 	}
 }
+
+
+func TestArticleService_UpdateArticle(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockArticleRepo(ctrl)
+	articleService := NewArticleService(mockRepo)
+
+	tests := []struct {
+		name    string
+		req     dto.ArticleDTO
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful update",
+			req: dto.ArticleDTO{
+				ID:    1,
+				Title: "Updated",
+			},
+			setup: func() {
+				mockRepo.EXPECT().UpdateArticle(gomock.Any()).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "article not found",
+			req: dto.ArticleDTO{
+				ID: 999,
+			},
+			setup: func() {
+				mockRepo.EXPECT().UpdateArticle(gomock.Any()).Return(gorm.ErrRecordNotFound)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			err := articleService.UpdateArticle(tt.req)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestArticleService_DeleteArticle(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockArticleRepo(ctrl)
+	articleService := NewArticleService(mockRepo)
+
+	tests := []struct {
+		name    string
+		id      uint
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful delete",
+			id:   1,
+			setup: func() {
+				mockRepo.EXPECT().DeleteArticle(uint(1)).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "article not found",
+			id:   999,
+			setup: func() {
+				mockRepo.EXPECT().DeleteArticle(uint(999)).Return(gorm.ErrRecordNotFound)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			err := articleService.DeleteArticle(tt.id)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}

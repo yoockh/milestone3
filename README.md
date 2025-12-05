@@ -7,6 +7,7 @@
 [![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=flat&logo=google-cloud&logoColor=white)](https://cloud.google.com/)
 [![Midtrans](https://img.shields.io/badge/Midtrans-Payment-FF6B00?style=flat)](https://midtrans.com/)
 [![Swagger](https://img.shields.io/badge/Swagger-API_Docs-85EA2D?style=flat&logo=swagger)](https://yourdonaterise-278016640112.asia-southeast2.run.app/swagger/index.html)
+[![Coverage](https://img.shields.io/badge/Coverage-71.9%25-green?style=flat&logo=go)](be/coverage.html)
 
 A comprehensive donation and auction management system that transforms donated goods into meaningful impact through transparent auctions and direct donations to institutions in need.
 

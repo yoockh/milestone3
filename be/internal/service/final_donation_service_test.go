@@ -118,6 +118,6 @@ func TestFinalDonationService_GetAllFinalDonationsByUserID(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, result)
 			}
-		})
-	}
+		}) // Closing the t.Run function
+	} // Closing the TestFinalDonationService_GetAllFinalDonationsByUserID function
 }

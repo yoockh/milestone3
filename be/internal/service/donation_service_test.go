@@ -232,3 +232,157 @@ func TestDonationService_CanManageDonations(t *testing.T) {
 		})
 	}
 }
+
+func TestDonationService_UpdateDonation(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockDonationRepo(ctrl)
+	mockStorage := mocks.NewMockGCPStorageRepo(ctrl)
+	donationService := NewDonationService(mockRepo, mockStorage)
+
+	tests := []struct {
+		name    string
+		req     dto.DonationDTO
+		userID  uint
+		isAdmin bool
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful update by owner",
+			req: dto.DonationDTO{
+				ID:    1,
+				Title: "Updated",
+			},
+			userID:  1,
+			isAdmin: false,
+			setup: func() {
+				mockRepo.EXPECT().GetDonationByID(uint(1)).Return(entity.Donation{ID: 1, UserID: 1}, nil)
+				mockRepo.EXPECT().UpdateDonation(gomock.Any()).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "forbidden - not owner",
+			req: dto.DonationDTO{
+				ID: 1,
+			},
+			userID:  2,
+			isAdmin: false,
+			setup: func() {
+				mockRepo.EXPECT().GetDonationByID(uint(1)).Return(entity.Donation{ID: 1, UserID: 1}, nil)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			err := donationService.UpdateDonation(tt.req, tt.userID, tt.isAdmin)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestDonationService_DeleteDonation(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockDonationRepo(ctrl)
+	mockStorage := mocks.NewMockGCPStorageRepo(ctrl)
+	donationService := NewDonationService(mockRepo, mockStorage)
+
+	tests := []struct {
+		name    string
+		id      uint
+		userID  uint
+		isAdmin bool
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name:    "successful delete by owner",
+			id:      1,
+			userID:  1,
+			isAdmin: false,
+			setup: func() {
+				mockRepo.EXPECT().GetDonationByID(uint(1)).Return(entity.Donation{ID: 1, UserID: 1}, nil)
+				mockRepo.EXPECT().DeleteDonation(uint(1)).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name:    "donation not found",
+			id:      999,
+			userID:  1,
+			isAdmin: false,
+			setup: func() {
+				mockRepo.EXPECT().GetDonationByID(uint(999)).Return(entity.Donation{}, gorm.ErrRecordNotFound)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			err := donationService.DeleteDonation(tt.id, tt.userID, tt.isAdmin)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestDonationService_PatchDonation(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockDonationRepo(ctrl)
+	mockStorage := mocks.NewMockGCPStorageRepo(ctrl)
+	donationService := NewDonationService(mockRepo, mockStorage)
+
+	tests := []struct {
+		name    string
+		req     dto.DonationDTO
+		userID  uint
+		isAdmin bool
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful patch by admin",
+			req: dto.DonationDTO{
+				ID:     1,
+				Status: "verified_for_donation",
+			},
+			userID:  1,
+			isAdmin: true,
+			setup: func() {
+				mockRepo.EXPECT().GetDonationByID(uint(1)).Return(entity.Donation{ID: 1, UserID: 2}, nil)
+				mockRepo.EXPECT().PatchDonation(gomock.Any()).Return(nil)
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			err := donationService.PatchDonation(tt.req, tt.userID, tt.isAdmin)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}

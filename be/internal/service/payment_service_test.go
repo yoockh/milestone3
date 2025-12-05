@@ -134,3 +134,46 @@ func TestPaymentService_GetPaymentById(t *testing.T) {
 		})
 	}
 }
+
+func TestPaymentService_GetAllPayment(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockPaymentRepository(ctrl)
+	paymentService := NewPaymentService(mockRepo)
+
+	tests := []struct {
+		name    string
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful get all",
+			setup: func() {
+				payments := []entity.Payment{{Id: 1}, {Id: 2}}
+				mockRepo.EXPECT().GetAll().Return(payments, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "repository error",
+			setup: func() {
+				mockRepo.EXPECT().GetAll().Return(nil, errors.New("db error"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			result, err := paymentService.GetAllPayment()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+			}
+		})
+	}
+}

@@ -57,19 +57,19 @@
 				
 				<option value="file0">milestone3/be/internal/service/admin_service.go (81.8%)</option>
 				
-				<option value="file1">milestone3/be/internal/service/article_service.go (50.0%)</option>
+				<option value="file1">milestone3/be/internal/service/article_service.go (81.2%)</option>
 				
-				<option value="file2">milestone3/be/internal/service/auction_item_service.go (53.7%)</option>
+				<option value="file2">milestone3/be/internal/service/auction_item_service.go (85.2%)</option>
 				
-				<option value="file3">milestone3/be/internal/service/auction_session_service.go (36.2%)</option>
+				<option value="file3">milestone3/be/internal/service/auction_session_service.go (79.7%)</option>
 				
 				<option value="file4">milestone3/be/internal/service/bid_service.go (50.0%)</option>
 				
-				<option value="file5">milestone3/be/internal/service/donation_service.go (35.4%)</option>
+				<option value="file5">milestone3/be/internal/service/donation_service.go (64.6%)</option>
 				
 				<option value="file6">milestone3/be/internal/service/final_donation_service.go (27.3%)</option>
 				
-				<option value="file7">milestone3/be/internal/service/payment_service.go (64.0%)</option>
+				<option value="file7">milestone3/be/internal/service/payment_service.go (92.0%)</option>
 				
 				<option value="file8">milestone3/be/internal/service/user_service.go (77.4%)</option>
 				
@@ -211,28 +211,28 @@ func (s *articleService) GetArticleByID(id uint) (dto.ArticleDTO, error) <span c
         <span class="cov8" title="1">return dto.ArticleResponse(article), nil</span>
 }
 
-func (s *articleService) UpdateArticle(articleDTO dto.ArticleDTO) error <span class="cov0" title="0">{
+func (s *articleService) UpdateArticle(articleDTO dto.ArticleDTO) error <span class="cov8" title="1">{
         article, err := dto.ArticleRequest(articleDTO)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">if err := s.repo.UpdateArticle(article); err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := s.repo.UpdateArticle(article); err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
                         return ErrArticleNotFound
                 }</span>
                 <span class="cov0" title="0">return err</span>
         }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
-func (s *articleService) DeleteArticle(id uint) error <span class="cov0" title="0">{
-        if err := s.repo.DeleteArticle(id); err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+func (s *articleService) DeleteArticle(id uint) error <span class="cov8" title="1">{
+        if err := s.repo.DeleteArticle(id); err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
                         return ErrArticleNotFound
                 }</span>
                 <span class="cov0" title="0">return err</span>
         }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -327,19 +327,19 @@ func (s *itemsService) GetByID(id int64) (dto.AuctionItemDTO, error) <span class
         <span class="cov8" title="1">return dto.AuctionItemResponse(*item), nil</span>
 }
 
-func (s *itemsService) Update(id int64, itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, error) <span class="cov0" title="0">{
+func (s *itemsService) Update(id int64, itemDTO *dto.AuctionItemDTO) (dto.AuctionItemDTO, error) <span class="cov8" title="1">{
         existingItem, err := s.repo.GetByID(id)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 s.logger.Error("Failed to get auction item by ID for update", "error", err)
                 return dto.AuctionItemDTO{}, ErrAuctionNotFoundID
         }</span>
 
-        <span class="cov0" title="0">updatedItem, err := dto.AuctionItemRequest(*itemDTO)
+        <span class="cov8" title="1">updatedItem, err := dto.AuctionItemRequest(*itemDTO)
         if err != nil </span><span class="cov0" title="0">{
                 return dto.AuctionItemDTO{}, ErrInvalidAuction
         }</span>
 
-        <span class="cov0" title="0">updatedItem.ID = existingItem.ID
+        <span class="cov8" title="1">updatedItem.ID = existingItem.ID
         updatedItem.CreatedAt = existingItem.CreatedAt
 
         err = s.repo.Update(&amp;updatedItem)
@@ -348,21 +348,21 @@ func (s *itemsService) Update(id int64, itemDTO *dto.AuctionItemDTO) (dto.Auctio
                 return dto.AuctionItemDTO{}, ErrInvalidAuction
         }</span>
 
-        <span class="cov0" title="0">return dto.AuctionItemResponse(updatedItem), nil</span>
+        <span class="cov8" title="1">return dto.AuctionItemResponse(updatedItem), nil</span>
 }
 
-func (s *itemsService) Delete(id int64) error <span class="cov0" title="0">{
+func (s *itemsService) Delete(id int64) error <span class="cov8" title="1">{
         _, err := s.repo.GetByID(id)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return ErrAuctionNotFoundID
         }</span>
 
-        <span class="cov0" title="0">err = s.repo.Delete(id)
+        <span class="cov8" title="1">err = s.repo.Delete(id)
         if err != nil </span><span class="cov0" title="0">{
                 s.logger.Error("Failed to delete auction item", "error", err)
                 return ErrInvalidAuction
         }</span>
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -446,84 +446,84 @@ func (s *sessionService) GetAll() ([]dto.AuctionSessionDTO, error) <span class="
         <span class="cov8" title="1">return sessionDTOs, nil</span>
 }
 
-func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.AuctionSessionDTO, error) <span class="cov0" title="0">{
+func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.AuctionSessionDTO, error) <span class="cov8" title="1">{
         session, err := s.repo.GetByID(id)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 s.logger.Error("Failed to get auction session by ID for update", "error", err)
                 return dto.AuctionSessionDTO{}, ErrSessionNotFoundID
         }</span>
 
-        <span class="cov0" title="0">now := time.Now()
-        if session.StartTime.Before(now) &amp;&amp; session.EndTime.After(now) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">now := time.Now()
+        if session.StartTime.Before(now) &amp;&amp; session.EndTime.After(now) </span><span class="cov8" title="1">{
                 return dto.AuctionSessionDTO{}, ErrActiveSession
         }</span>
-        <span class="cov0" title="0">if session.EndTime.Before(now) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if session.EndTime.Before(now) </span><span class="cov0" title="0">{
                 return dto.AuctionSessionDTO{}, ErrInvalidDate
         }</span>
 
-        <span class="cov0" title="0">if d.Name != "" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if d.Name != "" </span><span class="cov8" title="1">{
                 session.Name = d.Name
         }</span>
-        <span class="cov0" title="0">if !d.StartTime.IsZero() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !d.StartTime.IsZero() </span><span class="cov0" title="0">{
                 session.StartTime = d.StartTime
         }</span>
-        <span class="cov0" title="0">if !d.EndTime.IsZero() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !d.EndTime.IsZero() </span><span class="cov0" title="0">{
                 session.EndTime = d.EndTime
         }</span>
 
-        <span class="cov0" title="0">if session.EndTime.Before(session.StartTime) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if session.EndTime.Before(session.StartTime) </span><span class="cov0" title="0">{
                 return dto.AuctionSessionDTO{}, ErrInvalidDate
         }</span>
 
         // assign to DB
-        <span class="cov0" title="0">err = s.repo.Update(session)
+        <span class="cov8" title="1">err = s.repo.Update(session)
         if err != nil </span><span class="cov0" title="0">{
                 s.logger.Error("Failed to update auction session", "error", err)
                 return dto.AuctionSessionDTO{}, ErrInvalidAuction
         }</span>
 
         // update Redis if session is active
-        <span class="cov0" title="0">if session.StartTime.Before(now) &amp;&amp; session.EndTime.After(now) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if session.StartTime.Before(now) &amp;&amp; session.EndTime.After(now) </span><span class="cov0" title="0">{
                 if err := s.redisRepo.SetActiveSession(*session); err != nil </span><span class="cov0" title="0">{
                         s.logger.Error("Failed to update active session in Redis", "error", err)
                 }</span>
-        } else<span class="cov0" title="0"> {
+        } else<span class="cov8" title="1"> {
                 if err := s.redisRepo.DeleteSession(session.ID); err != nil </span><span class="cov0" title="0">{
                         s.logger.Error("Failed to delete session from Redis", "error", err)
                 }</span>
         }
 
-        <span class="cov0" title="0">return dto.AuctionSessionResponse(*session), nil</span>
+        <span class="cov8" title="1">return dto.AuctionSessionResponse(*session), nil</span>
 }
 
-func (s *sessionService) Delete(id int64) error <span class="cov0" title="0">{
+func (s *sessionService) Delete(id int64) error <span class="cov8" title="1">{
         session, err := s.repo.GetByID(id)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 s.logger.Error("Failed to get auction session by ID for delete", "error", err)
                 return ErrSessionNotFoundID
         }</span>
 
-        <span class="cov0" title="0">now := time.Now()
+        <span class="cov8" title="1">now := time.Now()
 
-        if session.StartTime.Before(now) &amp;&amp; session.EndTime.After(now) </span><span class="cov0" title="0">{
+        if session.StartTime.Before(now) &amp;&amp; session.EndTime.After(now) </span><span class="cov8" title="1">{
                 return ErrActiveSession
         }</span>
 
-        <span class="cov0" title="0">if session.EndTime.Before(now) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if session.EndTime.Before(now) </span><span class="cov0" title="0">{
                 return ErrInvalidDate
         }</span>
 
-        <span class="cov0" title="0">err = s.repo.Delete(id)
+        <span class="cov8" title="1">err = s.repo.Delete(id)
         if err != nil </span><span class="cov0" title="0">{
                 s.logger.Error("Failed to delete auction session", "error", err)
                 return ErrInvalidAuction
         }</span>
 
-        <span class="cov0" title="0">if err := s.redisRepo.DeleteSession(session.ID); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := s.redisRepo.DeleteSession(session.ID); err != nil </span><span class="cov0" title="0">{
                 s.logger.Error("Failed to delete session from Redis", "error", err)
         }</span>
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -789,13 +789,13 @@ func (s *donationService) GetDonationByID(id uint) (dto.DonationDTO, error) <spa
         <span class="cov8" title="1">return dto.DonationResponse(donation), nil</span>
 }
 
-func (s *donationService) UpdateDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error <span class="cov0" title="0">{
+func (s *donationService) UpdateDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error <span class="cov8" title="1">{
         donation, err := dto.DonationRequest(donationDTO)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
 
-        <span class="cov0" title="0">existing, err := s.repo.GetDonationByID(donation.ID)
+        <span class="cov8" title="1">existing, err := s.repo.GetDonationByID(donation.ID)
         if err != nil </span><span class="cov0" title="0">{
                 if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
                         return ErrDonationNotFound
@@ -803,36 +803,36 @@ func (s *donationService) UpdateDonation(donationDTO dto.DonationDTO, userID uin
                 <span class="cov0" title="0">return err</span>
         }
 
-        <span class="cov0" title="0">if !s.CanManageDonations(userID, existing.UserID, isAdmin) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !s.CanManageDonations(userID, existing.UserID, isAdmin) </span><span class="cov8" title="1">{
                 return ErrForbidden
         }</span>
 
-        <span class="cov0" title="0">return s.repo.UpdateDonation(donation)</span>
+        <span class="cov8" title="1">return s.repo.UpdateDonation(donation)</span>
 }
 
-func (s *donationService) DeleteDonation(id uint, userID uint, isAdmin bool) error <span class="cov0" title="0">{
+func (s *donationService) DeleteDonation(id uint, userID uint, isAdmin bool) error <span class="cov8" title="1">{
         donation, err := s.repo.GetDonationByID(id)
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
                         return ErrDonationNotFound
                 }</span>
                 <span class="cov0" title="0">return err</span>
         }
 
-        <span class="cov0" title="0">if !s.CanManageDonations(userID, donation.UserID, isAdmin) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !s.CanManageDonations(userID, donation.UserID, isAdmin) </span><span class="cov0" title="0">{
                 return ErrForbidden
         }</span>
 
-        <span class="cov0" title="0">return s.repo.DeleteDonation(id)</span>
+        <span class="cov8" title="1">return s.repo.DeleteDonation(id)</span>
 }
 
-func (s *donationService) PatchDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error <span class="cov0" title="0">{
+func (s *donationService) PatchDonation(donationDTO dto.DonationDTO, userID uint, isAdmin bool) error <span class="cov8" title="1">{
         donation, err := dto.DonationRequest(donationDTO)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
 
-        <span class="cov0" title="0">existing, err := s.repo.GetDonationByID(donation.ID)
+        <span class="cov8" title="1">existing, err := s.repo.GetDonationByID(donation.ID)
         if err != nil </span><span class="cov0" title="0">{
                 if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
                         return ErrDonationNotFound
@@ -840,11 +840,11 @@ func (s *donationService) PatchDonation(donationDTO dto.DonationDTO, userID uint
                 <span class="cov0" title="0">return err</span>
         }
 
-        <span class="cov0" title="0">if !s.CanManageDonations(userID, existing.UserID, isAdmin) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !s.CanManageDonations(userID, existing.UserID, isAdmin) </span><span class="cov0" title="0">{
                 return ErrForbidden
         }</span>
 
-        <span class="cov0" title="0">return s.repo.PatchDonation(donation)</span>
+        <span class="cov8" title="1">return s.repo.PatchDonation(donation)</span>
 }
 
 func (s *donationService) CanManageDonations(userID uint, ownerID uint, isAdmin bool) bool <span class="cov8" title="1">{
@@ -1005,14 +1005,14 @@ func (ps *PaymentServ) GetPaymentById(id int) (res dto.PaymentInfoResponse, err 
         return res, nil</span>
 }
 
-func (ps *PaymentServ) GetAllPayment() (res []dto.PaymentInfoResponse, err error) <span class="cov0" title="0">{
+func (ps *PaymentServ) GetAllPayment() (res []dto.PaymentInfoResponse, err error) <span class="cov8" title="1">{
         resp, err := ps.paymentRepo.GetAll()
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 log.Printf("failed get all payment info %s", err)
                 return []dto.PaymentInfoResponse{}, err
         }</span>
 
-        <span class="cov0" title="0">for _, payment := range resp </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">for _, payment := range resp </span><span class="cov8" title="1">{
                 res = append(res, dto.PaymentInfoResponse{
                 Id: payment.Id,
                 UserId: payment.UserId,
@@ -1024,7 +1024,7 @@ func (ps *PaymentServ) GetAllPayment() (res []dto.PaymentInfoResponse, err error
                 })
         }</span>
 
-        <span class="cov0" title="0">return res, nil</span>
+        <span class="cov8" title="1">return res, nil</span>
 }</pre>
 		
 		<pre class="file" id="file8" style="display: none">package service

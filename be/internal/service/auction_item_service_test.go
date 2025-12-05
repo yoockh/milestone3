@@ -192,3 +192,102 @@ func TestAuctionItemService_GetByID(t *testing.T) {
 		})
 	}
 }
+
+func TestAuctionItemService_Update(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockAuctionItemRepository(ctrl)
+	mockAI := mocks.NewMockAIRepository(ctrl)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	auctionService := NewAuctionItemService(mockRepo, mockAI, logger)
+
+	tests := []struct {
+		name    string
+		id      int64
+		req     *dto.AuctionItemDTO
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful update",
+			id:   1,
+			req:  &dto.AuctionItemDTO{Title: "Updated"},
+			setup: func() {
+				item := &entity.AuctionItem{ID: 1, Title: "Old"}
+				mockRepo.EXPECT().GetByID(int64(1)).Return(item, nil)
+				mockRepo.EXPECT().Update(gomock.Any()).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "item not found",
+			id:   999,
+			req:  &dto.AuctionItemDTO{},
+			setup: func() {
+				mockRepo.EXPECT().GetByID(int64(999)).Return(nil, errors.New("not found"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			_, err := auctionService.Update(tt.id, tt.req)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestAuctionItemService_Delete(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockAuctionItemRepository(ctrl)
+	mockAI := mocks.NewMockAIRepository(ctrl)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	auctionService := NewAuctionItemService(mockRepo, mockAI, logger)
+
+	tests := []struct {
+		name    string
+		id      int64
+		setup   func()
+		wantErr bool
+	}{
+		{
+			name: "successful delete",
+			id:   1,
+			setup: func() {
+				item := &entity.AuctionItem{ID: 1}
+				mockRepo.EXPECT().GetByID(int64(1)).Return(item, nil)
+				mockRepo.EXPECT().Delete(int64(1)).Return(nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "item not found",
+			id:   999,
+			setup: func() {
+				mockRepo.EXPECT().GetByID(int64(999)).Return(nil, errors.New("not found"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			err := auctionService.Delete(tt.id)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
