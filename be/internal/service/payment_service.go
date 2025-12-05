@@ -51,6 +51,10 @@ func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int, auction
 
 func (ps *PaymentServ) CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error) {
 	resp, _:= ps.paymentRepo.CheckPaymentStatusMidtrans(orderId)
+	// if err != nil {
+	// 	log.Printf("error check payment %s", err)
+	// 	return dto.CheckPaymentStatusResponse{}, err
+	// }
 
 	return resp, nil
 }
