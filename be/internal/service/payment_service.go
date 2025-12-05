@@ -15,6 +15,9 @@ type PaymentRepository interface {
 	CheckPaymentStatusMidtrans(orderId string) (res dto.CheckPaymentStatusResponse, err error)
 	GetById(id int) (payment entity.Payment, err error)
 	GetAll() (payment []entity.Payment, err error)
+
+	//getting amount from bid
+	GetBidByAuctionId(auctionItemId int) (bid entity.Bid, err error)
 }
 
 type PaymentServ struct {
@@ -26,6 +29,17 @@ func NewPaymentService(pr PaymentRepository) *PaymentServ {
 }
 
 func (ps *PaymentServ) CreatePayment(req dto.PaymentRequest, userId int, auctionItemId int) (res dto.PaymentResponse, err error) {
+	//WIP
+	//get amount from bid
+	bid, err := ps.paymentRepo.GetBidByAuctionId(auctionItemId)
+	if err != nil {
+		log.Printf("error getting bid by auction id %s", err)
+		return dto.PaymentResponse{}, err
+	}
+	
+	if req.Amount < bid.Amount {
+		return dto.PaymentResponse{}, fmt.Errorf("amount req is less than amount from bid")
+	}
 	//get auction for auctionItemId to check if auctionitemid exist or not
 	//random id for order id
 	uuid := uuid.New()

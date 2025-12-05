@@ -45,6 +45,14 @@ func (pr *PaymentRepo) GetAll() (payment []entity.Payment, err error) {
 	return payment, err
 }
 
+func (pr *PaymentRepo) GetBidByAuctionId(auctionItemId int) (bid entity.Bid, err error) {
+	if err := pr.db.WithContext(context.Background()).First(&bid, "auction_item_id = ?", auctionItemId).Error; err != nil {
+		return entity.Bid{}, err
+	}
+
+	return bid, nil
+}
+
 func (pr *PaymentRepo) CreateMidtrans(payment entity.Payment, orderId string) (res dto.PaymentResponse, err error) {
 	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
 	c := coreapi.Client{}
@@ -121,3 +129,4 @@ func (pr *PaymentRepo) CheckPaymentStatusMidtrans(orderId string) (res dto.Check
 
 	return res, nil
 }
+
