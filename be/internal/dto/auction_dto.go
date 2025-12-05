@@ -6,6 +6,17 @@ import (
 	"milestone3/be/internal/entity"
 )
 
+var wibLocation *time.Location
+
+func init() {
+	var err error
+	wibLocation, err = time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		// fallback to WIB
+		wibLocation = time.FixedZone("WIB", 7*60*60)
+	}
+}
+
 type AuctionItemDTO struct {
 	Title         string  `json:"title,omitempty" validate:"required"`
 	Description   string  `json:"description,omitempty" validate:"required"`
@@ -60,7 +71,7 @@ func AuctionItemResponse(m entity.AuctionItem) AuctionItemDTO {
 		Category:      m.Category,
 		Status:        m.Status,
 		StartingPrice: m.StartingPrice,
-		CreatedAt:     m.CreatedAt,
+		CreatedAt:     m.CreatedAt.In(wibLocation),
 	}
 }
 
@@ -80,11 +91,12 @@ type AuctionSessionDTO struct {
 }
 
 func AuctionSessionResponse(m entity.AuctionSession) AuctionSessionDTO {
+	// Convert from UTC (stored in DB) to Asia/Jakarta (WIB/GMT+7) for response
 	return AuctionSessionDTO{
 		Name:      m.Name,
 		ID:        m.ID,
-		StartTime: m.StartTime,
-		EndTime:   m.EndTime,
+		StartTime: m.StartTime.In(wibLocation),
+		EndTime:   m.EndTime.In(wibLocation),
 	}
 }
 

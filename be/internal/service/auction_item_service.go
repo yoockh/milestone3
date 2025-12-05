@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/repository"
-	"milestone3/be/internal/utils"
 	"time"
 )
 
@@ -183,7 +182,8 @@ func (s *itemsService) CheckAndStartScheduledItems() error {
 		return err
 	}
 
-	now := time.Now()
+	// Convert both to same timezone for comparison
+	now := time.Now().In(wibLocation)
 	updatedCount := 0
 
 	for _, item := range items {
@@ -192,8 +192,8 @@ func (s *itemsService) CheckAndStartScheduledItems() error {
 			continue
 		}
 
-		// use local time for comparison
-		sessionStart := utils.ToLocalTime(item.Session.StartTime)
+		// DB stores UTC, convert to WIB for comparison
+		sessionStart := item.Session.StartTime.In(wibLocation)
 
 		// check if current time >= session start_time
 		if !now.Before(sessionStart) {

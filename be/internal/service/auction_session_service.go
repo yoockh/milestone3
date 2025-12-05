@@ -5,7 +5,6 @@ import (
 	"milestone3/be/internal/dto"
 	"milestone3/be/internal/entity"
 	"milestone3/be/internal/repository"
-	"milestone3/be/internal/utils"
 	"time"
 )
 
@@ -65,10 +64,13 @@ func (s *sessionService) Create(d *dto.AuctionSessionDTO) (dto.AuctionSessionDTO
 		return dto.AuctionSessionDTO{}, ErrInvalidDate
 	}
 
+	// Convert to UTC before saving to database
+	// PostgreSQL TIMESTAMP (without timezone) stores as-is, so we convert to UTC first
+	// This ensures consistency: client sends WIB (+07:00) -> we convert to UTC -> store as UTC
 	session := entity.AuctionSession{
 		Name:      d.Name,
-		StartTime: d.StartTime,
-		EndTime:   d.EndTime,
+		StartTime: d.StartTime.UTC(),
+		EndTime:   d.EndTime.UTC(),
 	}
 
 	err := s.repo.Create(&session)
@@ -112,10 +114,10 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 		return dto.AuctionSessionDTO{}, ErrSessionNotFoundID
 	}
 
-	// use ToLocalTime to fetch time from DB
-	now := time.Now()
-	sessionStart := utils.ToLocalTime(session.StartTime)
-	sessionEnd := utils.ToLocalTime(session.EndTime)
+	// Convert DB times (stored as UTC) to local for comparison
+	now := time.Now().In(wibLocation)
+	sessionStart := session.StartTime.In(wibLocation)
+	sessionEnd := session.EndTime.In(wibLocation)
 
 	// cannot update active (ongoing) session
 	if sessionStart.Before(now) && sessionEnd.After(now) {
@@ -132,13 +134,14 @@ func (s *sessionService) Update(id int64, d *dto.AuctionSessionDTO) (dto.Auction
 		session.Name = d.Name
 	}
 	if !d.StartTime.IsZero() {
-		session.StartTime = d.StartTime
+		// Convert to UTC before saving
+		session.StartTime = d.StartTime.UTC()
 	}
 	if !d.EndTime.IsZero() {
-		session.EndTime = d.EndTime
+		// Convert to UTC before saving
+		session.EndTime = d.EndTime.UTC()
 	}
 
-	// Validate new times (user input, don't use ToLocalTime)
 	newStart := session.StartTime
 	newEnd := session.EndTime
 
@@ -180,10 +183,10 @@ func (s *sessionService) Delete(id int64) error {
 		return ErrSessionNotFoundID
 	}
 
-	// use ToLocalTime to fetch time from DB
-	now := time.Now()
-	sessionStart := utils.ToLocalTime(session.StartTime)
-	sessionEnd := utils.ToLocalTime(session.EndTime)
+	// Convert DB times (stored as UTC) to local for comparison
+	now := time.Now().In(wibLocation)
+	sessionStart := session.StartTime.In(wibLocation)
+	sessionEnd := session.EndTime.In(wibLocation)
 
 	// cannot delete active (ongoing) session
 	if sessionStart.Before(now) && sessionEnd.After(now) {

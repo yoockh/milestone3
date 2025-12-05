@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"milestone3/be/internal/entity"
 	"milestone3/be/internal/repository"
-	"milestone3/be/internal/utils"
 	"strconv"
 	"strings"
 	"sync"
@@ -20,7 +19,19 @@ const (
 	MaxRetries      = 3
 )
 
-var mutex sync.Map
+var (
+	mutex       sync.Map
+	wibLocation *time.Location
+)
+
+func init() {
+	var err error
+	wibLocation, err = time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		// fallback to WIB
+		wibLocation = time.FixedZone("WIB", 7*60*60)
+	}
+}
 
 func getMutex(itemID int64) *sync.Mutex {
 	m, _ := mutex.LoadOrStore(itemID, &sync.Mutex{})
@@ -78,10 +89,12 @@ func (s *bidService) PlaceBid(sessionID, itemID, userID int64, amount float64, s
 		return ErrSessionNotFoundID
 	}
 
-	now := time.Now()
+	// Convert both to same timezone for comparison
+	now := time.Now().In(wibLocation)
 
-	sessionStart := utils.ToLocalTime(session.StartTime)
-	sessionEnd := utils.ToLocalTime(session.EndTime)
+	// DB stores UTC, convert to WIB
+	sessionStart := session.StartTime.In(wibLocation)
+	sessionEnd := session.EndTime.In(wibLocation)
 
 	if now.Before(sessionStart) {
 		return ErrInvalidAuction
@@ -192,8 +205,11 @@ func (s *bidService) SaveKeyToDB() error {
 			continue
 		}
 
-		now := time.Now()
-		endTimeLocal := utils.ToLocalTime(session.EndTime)
+		// Convert both to same timezone for comparison
+		now := time.Now().In(wibLocation)
+
+		// DB stores UTC, convert to WIB
+		endTimeLocal := session.EndTime.In(wibLocation)
 
 		if now.Before(endTimeLocal) {
 			continue
@@ -260,7 +276,8 @@ func (s *bidService) CloseExpiredItemsWithoutBids() error {
 		return err
 	}
 
-	now := time.Now()
+	// Convert to same timezone for comparison
+	now := time.Now().In(wibLocation)
 	closedCount := 0
 
 	for _, item := range items {
@@ -280,7 +297,8 @@ func (s *bidService) CloseExpiredItemsWithoutBids() error {
 			continue
 		}
 
-		endTimeLocal := utils.ToLocalTime(session.EndTime)
+		// DB stores UTC, convert to WIB
+		endTimeLocal := session.EndTime.In(wibLocation)
 
 		if now.After(endTimeLocal) {
 			amount, _, err := s.redisRepo.GetHighestBid(*item.SessionID, item.ID)
